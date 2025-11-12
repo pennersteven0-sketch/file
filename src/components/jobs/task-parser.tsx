@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState, useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { getTasksFromDescription, type FormState } from '@/app/actions';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Wand2, Loader2, CheckCircle, Circle, AlertCircle } from 'lucide-react';
@@ -33,7 +33,7 @@ function SubmitButton() {
 export function TaskParser({ initialTasks, jobDescription }: { initialTasks: Task[], jobDescription: string }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const initialState: FormState = { message: '' };
-  const [state, formAction] = useFormState(getTasksFromDescription, initialState);
+  const [state, formAction] = useActionState(getTasksFromDescription, initialState);
   
   useEffect(() => {
     if (state.message === 'success' && state.tasks) {
