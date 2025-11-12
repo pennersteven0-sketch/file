@@ -17,8 +17,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { useEffect } from 'react';
+import { Card, CardContent } from '../ui/card';
+import { useMemo } from 'react';
 
 const slabSchema = z.object({
   width: z.coerce.number().positive(),
@@ -89,40 +89,40 @@ export function QuoteForm() {
 
   const watchedValues = useWatch({ control: form.control });
 
-  const calculations = useEffect(() => {
+  const calculations = useMemo(() => {
     const { slabs, footings, pierHoles, costs } = watchedValues;
 
     // Slab Calculations
-    const totalSlabSqFt = slabs.reduce((acc, s) => acc + s.length * s.width, 0);
-    const totalSlabCubicFt = slabs.reduce((acc, s) => acc + s.length * s.width * (s.thickness / 12), 0);
-    const slabRebar = slabs.reduce((acc, s) => acc + (s.length * (Math.ceil(s.width / 2)) + s.width * (Math.ceil(s.length / 2))), 0);
+    const totalSlabSqFt = (slabs || []).reduce((acc, s) => acc + (s.length || 0) * (s.width || 0), 0);
+    const totalSlabCubicFt = (slabs || []).reduce((acc, s) => acc + (s.length || 0) * (s.width || 0) * ((s.thickness || 0) / 12), 0);
+    const slabRebar = (slabs || []).reduce((acc, s) => acc + ((s.length || 0) * (Math.ceil((s.width || 0) / 2)) + (s.width || 0) * (Math.ceil((s.length || 0) / 2))), 0);
 
     // Footing Calculations
-    const totalFootingCubicFt = footings.reduce((acc, f) => acc + f.length * (f.width / 12) * (f.depth / 12), 0);
+    const totalFootingCubicFt = (footings || []).reduce((acc, f) => acc + (f.length || 0) * ((f.width || 0) / 12) * ((f.depth || 0) / 12), 0);
     // Assuming 2 rows of rebar in footings
-    const footingRebar = footings.reduce((acc, f) => acc + f.length * 2, 0);
+    const footingRebar = (footings || []).reduce((acc, f) => acc + (f.length || 0) * 2, 0);
 
     // Pier Hole Calculations
-    const totalPierHoleCubicFt = pierHoles.reduce((acc, p) => {
-        const radius = (p.diameter / 12) / 2;
-        return acc + (p.count * Math.PI * Math.pow(radius, 2) * (p.depth / 12));
+    const totalPierHoleCubicFt = (pierHoles || []).reduce((acc, p) => {
+        const radius = ((p.diameter || 0) / 12) / 2;
+        return acc + ((p.count || 0) * Math.PI * Math.pow(radius, 2) * ((p.depth || 0) / 12));
     }, 0);
     
     // Concrete
     const totalCubicFt = totalSlabCubicFt + totalFootingCubicFt + totalPierHoleCubicFt;
     const totalCubicYards = totalCubicFt / 27;
-    const concreteCost = totalCubicYards * costs.concretePrice;
+    const concreteCost = totalCubicYards * (costs?.concretePrice || 0);
     
     // Rebar
     const totalRebar = slabRebar + footingRebar;
-    const rebarCost = totalRebar * costs.rebarPrice;
+    const rebarCost = totalRebar * (costs?.rebarPrice || 0);
 
     // Labor
-    const laborCost = totalSlabSqFt * costs.laborPrice;
+    const laborCost = totalSlabSqFt * (costs?.laborPrice || 0);
     
     // Totals
     const subtotal = concreteCost + rebarCost + laborCost;
-    const tax = subtotal * (costs.taxRate / 100);
+    const tax = subtotal * ((costs?.taxRate || 0) / 100);
     const total = subtotal + tax;
 
     return {
@@ -248,7 +248,7 @@ export function QuoteForm() {
                     <p>Labor: <span className="font-medium">${calculations.laborCost}</span></p>
                     <Separator className="my-2"/>
                     <p className="font-semibold">Subtotal: <span className="font-bold">${calculations.subtotal}</span></p>
-                    <p className="text-sm">Tax ({watchedValues.costs.taxRate}%): <span className="font-medium">${calculations.tax}</span></p>
+                    <p className="text-sm">Tax ({watchedValues.costs?.taxRate || 0}%): <span className="font-medium">${calculations.tax}</span></p>
                     <p className="text-xl font-bold">Total: <span className="text-primary">${calculations.total}</span></p>
                 </div>
             </CardContent>
