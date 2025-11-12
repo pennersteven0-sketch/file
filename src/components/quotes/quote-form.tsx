@@ -181,7 +181,7 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: 0, width: 0, thickness: 4 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: undefined, width: undefined, thickness: 4 } as any)}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
         </div>
 
         {/* Footings */}
@@ -195,7 +195,7 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeFooting(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: 0, width: 12, depth: 12 })}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: undefined, width: 12, depth: 12 } as any)}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>
         </div>
 
         {/* Pier Holes */}
@@ -209,7 +209,7 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" onClick={() => removePierHole(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendPierHole({ count: 0, diameter: 12, depth: 24 })}><PlusCircle className="mr-2 h-4 w-4" />Add Pier Holes</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendPierHole({ count: undefined, diameter: 12, depth: 24 } as any)}><PlusCircle className="mr-2 h-4 w-4" />Add Pier Holes</Button>
         </div>
 
         <Separator />
