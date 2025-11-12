@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ClipboardList, Users, Bell } from 'lucide-react';
+import { Home, ClipboardList, Users, Bell, CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from './logo';
 import { useSidebar } from '@/hooks/use-sidebar';
@@ -10,6 +10,7 @@ import { useSidebar } from '@/hooks/use-sidebar';
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
   { href: '/quotes', label: 'Quotes', icon: ClipboardList },
+  { href: '/calendar', label: 'Calendar', icon: CalendarDays },
   { href: '/team', label: 'Team', icon: Users },
   { href: '/notifications', label: 'Notifications', icon: Bell },
 ];

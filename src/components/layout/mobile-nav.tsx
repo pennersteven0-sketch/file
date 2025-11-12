@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ClipboardList, Users, Bell } from 'lucide-react';
+import { Home, ClipboardList, Users, Bell, CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { notifications } from '@/lib/data';
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/quotes', label: 'Quotes', icon: ClipboardList },
+  { href: '/calendar', label: 'Calendar', icon: CalendarDays },
   { href: '/team', label: 'Team', icon: Users },
   { href: '/notifications', label: 'Alerts', icon: Bell },
 ];
@@ -19,7 +20,7 @@ export function MobileNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background md:hidden">
-      <div className="grid h-16 grid-cols-4 items-center justify-items-center">
+      <div className="grid h-16 grid-cols-5 items-center justify-items-center">
         {navItems.map(item => {
           const isActive = pathname === item.href;
           return (
