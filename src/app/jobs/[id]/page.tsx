@@ -6,20 +6,23 @@ import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, MapPin, Calendar, Clock, Mail, Phone, Ruler } from 'lucide-react';
+import { User, MapPin, Calendar, Clock, Mail, Phone, Ruler, PlusCircle } from 'lucide-react';
 import { TaskParser } from '@/components/jobs/task-parser';
 import type { Task, Job } from '@/lib/types';
 import { format } from 'date-fns';
 import { QuoteForm } from '@/components/quotes/quote-form';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+
 
 const DetailRow = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => {
     const Icon = icon;
     return (
-        <div className="flex items-start">
+        <div className="flex items-start text-sm">
             <Icon className="h-4 w-4 mr-2 mt-1 flex-shrink-0 text-muted-foreground" />
-            <strong className="w-24">{label}:</strong>
-            <div className="ml-2 flex flex-col">{children}</div>
+            <strong className="w-24 flex-shrink-0">{label}:</strong>
+            <div className="ml-2 flex flex-col gap-1">{children}</div>
         </div>
     );
 };
@@ -55,6 +58,7 @@ export default function JobDetailsPage() {
         handleUpdateLocation();
     } else if (e.key === 'Escape') {
         setIsEditingLocation(false);
+        setEditingLocation(job.location);
     }
   };
 
@@ -93,29 +97,7 @@ export default function JobDetailsPage() {
     <div className="space-y-6 pb-16 md:pb-0">
       <header>
         <h1 className="text-3xl font-bold tracking-tight">{job.title}</h1>
-        <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-          <MapPin className="h-4 w-4" />
-            {isEditingLocation ? (
-                <Input
-                    value={editingLocation}
-                    onChange={(e) => setEditingLocation(e.target.value)}
-                    onBlur={handleUpdateLocation}
-                    onKeyDown={handleLocationKeyDown}
-                    className="h-8"
-                    autoFocus
-                />
-            ) : (
-                <span onClick={handleStartEditingLocation} className="cursor-pointer hover:text-primary">
-                    {isUrl(job.location) ? (
-                        <a href={job.location} target="_blank" rel="noopener noreferrer" className="underline">
-                            {job.location}
-                        </a>
-                    ) : (
-                        job.location || 'Click to set location'
-                    )}
-                </span>
-            )}
-        </div>
+        <p className="text-muted-foreground mt-2">Manage all details for this job.</p>
       </header>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -124,7 +106,7 @@ export default function JobDetailsPage() {
             <CardHeader>
               <CardTitle>Job Details</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-4 text-sm">
+            <CardContent className="grid gap-4">
                 <DetailRow icon={Calendar} label="Dates">
                     {job.dates.length > 0 ? (
                         job.dates.map((date, index) => (
@@ -135,11 +117,43 @@ export default function JobDetailsPage() {
                     )}
                 </DetailRow>
 
+                <DetailRow icon={MapPin} label="Location">
+                   {isEditingLocation ? (
+                        <Input
+                            value={editingLocation}
+                            onChange={(e) => setEditingLocation(e.target.value)}
+                            onBlur={handleUpdateLocation}
+                            onKeyDown={handleLocationKeyDown}
+                            className="h-8"
+                            autoFocus
+                        />
+                    ) : (
+                        job.location ? (
+                            isUrl(job.location) ? (
+                                <a href={job.location} target="_blank" rel="noopener noreferrer" onClick={handleStartEditingLocation} className="underline cursor-pointer hover:text-primary">
+                                    {job.location}
+                                </a>
+                            ) : (
+                                <span onClick={handleStartEditingLocation} className="cursor-pointer hover:text-primary">
+                                    {job.location}
+                                </span>
+                            )
+                        ) : (
+                            <Button variant="outline" size="sm" onClick={handleStartEditingLocation}>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add Address or Link
+                            </Button>
+                        )
+                    )}
+                </DetailRow>
+
                 <DetailRow icon={Clock} label="Status">
                     <Badge variant={job.status === 'Completed' ? 'secondary' : 'default'} className="ml-2">
                         {job.status}
                     </Badge>
                 </DetailRow>
+
+                <Separator className="my-2" />
                 
                 {formData && (
                     <>
