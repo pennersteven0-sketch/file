@@ -18,10 +18,10 @@ import { PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { Card, CardContent } from '../ui/card';
-import { useMemo, useContext } from 'react';
+import { useMemo, useContext, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { AppContext } from '../app-provider';
-import { Client } from '@/lib/types';
+import { Client, Quote } from '@/lib/types';
 
 const slabSchema = z.object({
   width: z.coerce.number().positive().optional().nullable(),
@@ -108,9 +108,16 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <h3 className="text-lg font-semibold mt-6 mb-2">{children}</h3>
 );
 
-export function QuoteForm() {
+interface QuoteFormProps {
+  quote?: Quote | null;
+  onFinished?: () => void;
+}
+
+
+export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
   const { toast } = useToast();
-  const { addQuote, quotes } = useContext(AppContext);
+  const { addQuote, updateQuote, quotes } = useContext(AppContext);
+  
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
     defaultValues: {
@@ -137,6 +144,25 @@ export function QuoteForm() {
       }
     },
   });
+
+  useEffect(() => {
+    if (quote) {
+      // This is a simplified mapping. A real app might need more complex logic
+      // to map the quote object to the form values, especially for field arrays.
+      form.reset({
+        clientName: quote.client.name,
+        clientPhone: quote.client.phone,
+        clientEmail: quote.client.email,
+        jobDetails: 'Loaded from quote - details need mapping', // Placeholder
+        // Field arrays like slabs, footings, etc. would need to be populated here
+        // For simplicity, we are not loading them in this example.
+        total: quote.total,
+      });
+    } else {
+      form.reset(); // Reset to default when creating a new quote
+    }
+  }, [quote, form]);
+
 
   const { fields: slabFields, append: appendSlab, remove: removeSlab } = useFieldArray({ control: form.control, name: 'slabs' });
   const { fields: footingFields, append: appendFooting, remove: removeFooting } = useFieldArray({ control: form.control, name: 'footings' });
@@ -248,31 +274,55 @@ export function QuoteForm() {
   }, [watchedValues]);
 
   function onSubmit(data: QuoteFormValues) {
-    const newQuote = {
-      id: `quote-${Date.now()}`,
-      quoteNumber: `Q-${new Date().getFullYear()}-${String(quotes.length + 1).padStart(3, '0')}`,
-      client: {
-        id: `cli-${Date.now()}`,
-        name: data.clientName || 'N/A',
-        contactPerson: data.clientName || 'N/A',
-        phone: data.clientPhone || 'N/A',
-        email: data.clientEmail || 'N/A',
-      } as Client,
-      dates: [],
-      validUntil: new Date(new Date().setDate(new Date().getDate() + 30)),
-      items: [], // Simplified for now
-      subtotal: calculations.rawTotal,
-      tax: 0, // Simplified
-      total: calculations.rawTotal,
-      status: 'Draft' as const,
-    };
     
-    addQuote(newQuote);
+    if (quote) {
+      // Update existing quote
+      const updatedQuote: Quote = {
+        ...quote,
+        client: {
+          ...quote.client,
+          name: data.clientName || quote.client.name,
+          phone: data.clientPhone || quote.client.phone,
+          email: data.clientEmail || quote.client.email,
+        },
+        total: calculations.rawTotal,
+        subtotal: calculations.rawTotal,
+        // Items would be updated here based on form data
+      };
+      updateQuote(updatedQuote);
+      toast({
+        title: 'Quote Updated',
+        description: `Quote ${quote.quoteNumber} has been successfully updated.`,
+      });
 
-    toast({
-      title: 'Quote Created',
-      description: 'The new quote has been successfully saved as a draft.',
-    });
+    } else {
+      // Create new quote
+       const newQuote: Quote = {
+        id: `quote-${Date.now()}`,
+        quoteNumber: `Q-${new Date().getFullYear()}-${String(quotes.length + 1).padStart(3, '0')}`,
+        client: {
+          id: `cli-${Date.now()}`,
+          name: data.clientName || 'N/A',
+          contactPerson: data.clientName || 'N/A',
+          phone: data.clientPhone || 'N/A',
+          email: data.clientEmail || 'N/A',
+        } as Client,
+        dates: [],
+        validUntil: new Date(new Date().setDate(new Date().getDate() + 30)),
+        items: [], // Simplified for now
+        subtotal: calculations.rawTotal,
+        tax: 0, // Simplified
+        total: calculations.rawTotal,
+        status: 'Draft' as const,
+      };
+      addQuote(newQuote);
+      toast({
+        title: 'Quote Created',
+        description: 'The new quote has been successfully saved as a draft.',
+      });
+    }
+
+    onFinished?.();
     form.reset();
   }
 
@@ -501,10 +551,8 @@ export function QuoteForm() {
         </Card>
 
 
-        <Button type="submit" className="w-full">Create Quote</Button>
+        <Button type="submit" className="w-full">{quote ? 'Update Quote' : 'Create Quote'}</Button>
       </form>
     </Form>
   );
 }
-
-    

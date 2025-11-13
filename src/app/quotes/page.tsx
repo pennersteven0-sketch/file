@@ -91,6 +91,23 @@ function QuoteStatusBadge({ status, onStatusChange, onDelete }: { status: Quote[
 
 export default function QuotesPage() {
   const { quotes, updateQuoteStatus, deleteQuote, updateQuoteDates } = useContext(AppContext);
+  const [isSheetOpen, setSheetOpen] = useState(false);
+  const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
+
+  const handleNewQuote = () => {
+    setEditingQuote(null);
+    setSheetOpen(true);
+  };
+
+  const handleEditQuote = (quote: Quote) => {
+    setEditingQuote(quote);
+    setSheetOpen(true);
+  };
+
+  const handleFormFinished = () => {
+    setSheetOpen(false);
+    setEditingQuote(null);
+  };
 
   return (
     <div className="space-y-6 pb-16 md:pb-0">
@@ -99,24 +116,12 @@ export default function QuotesPage() {
           <h1 className="text-3xl font-bold tracking-tight">Quotes</h1>
           <p className="text-muted-foreground">Manage and create new quotes for clients.</p>
         </div>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              New Quote
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>Create New Quote</SheetTitle>
-              <SheetDescription>
-                Fill out the details below to generate a new quote.
-              </SheetDescription>
-            </SheetHeader>
-            <QuoteForm />
-          </SheetContent>
-        </Sheet>
+        <Button onClick={handleNewQuote}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          New Quote
+        </Button>
       </div>
+
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -131,17 +136,17 @@ export default function QuotesPage() {
             </TableHeader>
             <TableBody>
               {quotes.map(quote => (
-                <TableRow key={quote.id}>
+                <TableRow key={quote.id} onClick={() => handleEditQuote(quote)} className="cursor-pointer">
                   <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
                   <TableCell>{quote.client.name}</TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <CalendarPopover 
                       dates={quote.dates}
                       onDatesChange={(newDates) => updateQuoteDates(quote.id, newDates)}
                     />
                   </TableCell>
                   <TableCell>${quote.total.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <QuoteStatusBadge 
                       status={quote.status}
                       onStatusChange={(newStatus) => updateQuoteStatus(quote.id, newStatus)}
@@ -154,6 +159,18 @@ export default function QuotesPage() {
           </Table>
         </CardContent>
       </Card>
+      
+      <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>{editingQuote ? 'Edit Quote' : 'Create New Quote'}</SheetTitle>
+            <SheetDescription>
+              {editingQuote ? `Editing quote ${editingQuote.quoteNumber}` : 'Fill out the details below to generate a new quote.'}
+            </SheetDescription>
+          </SheetHeader>
+          <QuoteForm quote={editingQuote} onFinished={handleFormFinished} />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
