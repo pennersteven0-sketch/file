@@ -147,19 +147,39 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
 
   useEffect(() => {
     if (quote) {
-      // This is a simplified mapping. A real app might need more complex logic
-      // to map the quote object to the form values, especially for field arrays.
       form.reset({
         clientName: quote.client.name,
         clientPhone: quote.client.phone,
         clientEmail: quote.client.email,
-        jobDetails: 'Loaded from quote - details need mapping', // Placeholder
-        // Field arrays like slabs, footings, etc. would need to be populated here
-        // For simplicity, we are not loading them in this example.
-        total: quote.total,
+        jobDetails: quote.formData?.jobDetails ?? '',
+        slabs: quote.formData?.slabs ?? [],
+        footings: quote.formData?.footings ?? [],
+        roundPierHoles: quote.formData?.roundPierHoles ?? [],
+        squarePierHoles: quote.formData?.squarePierHoles ?? [],
+        travelCosts: quote.formData?.travelCosts ?? [],
+        labor: quote.formData?.labor ?? [],
+        equipment: quote.formData?.equipment ?? [],
+        otherExpenses: quote.formData?.otherExpenses ?? [],
+        costs: quote.formData?.costs ?? { concretePrice: 200, rebarPrice: 5, travelPrice: 2.5 },
+        profit: quote.formData?.profit ?? { fixedAmount: 0, perSquareFoot: 0 },
       });
     } else {
-      form.reset(); // Reset to default when creating a new quote
+       form.reset({
+        clientName: '',
+        clientPhone: '',
+        clientEmail: '',
+        jobDetails: '',
+        slabs: [],
+        footings: [],
+        roundPierHoles: [],
+        squarePierHoles: [],
+        travelCosts: [],
+        labor: [],
+        equipment: [],
+        otherExpenses: [],
+        costs: { concretePrice: 200, rebarPrice: 5, travelPrice: 2.5 },
+        profit: { fixedAmount: 0, perSquareFoot: 0 },
+      });
     }
   }, [quote, form]);
 
@@ -275,6 +295,20 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
 
   function onSubmit(data: QuoteFormValues) {
     
+    const formDataForSaving = {
+        jobDetails: data.jobDetails,
+        slabs: data.slabs,
+        footings: data.footings,
+        roundPierHoles: data.roundPierHoles,
+        squarePierHoles: data.squarePierHoles,
+        travelCosts: data.travelCosts,
+        labor: data.labor,
+        equipment: data.equipment,
+        otherExpenses: data.otherExpenses,
+        costs: data.costs,
+        profit: data.profit,
+    };
+
     if (quote) {
       // Update existing quote
       const updatedQuote: Quote = {
@@ -286,8 +320,9 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
           email: data.clientEmail || quote.client.email,
         },
         total: calculations.rawTotal,
-        subtotal: calculations.rawTotal,
-        // Items would be updated here based on form data
+        subtotal: calculations.rawTotal, // Assuming subtotal is same as total for now
+        formData: formDataForSaving,
+        items: [], // This might need to be derived from form data if used
       };
       updateQuote(updatedQuote);
       toast({
@@ -314,6 +349,7 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
         tax: 0, // Simplified
         total: calculations.rawTotal,
         status: 'Draft' as const,
+        formData: formDataForSaving,
       };
       addQuote(newQuote);
       toast({
@@ -323,7 +359,6 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
     }
 
     onFinished?.();
-    form.reset();
   }
 
   return (

@@ -42,6 +42,74 @@ export type QuoteItem = {
   total: number;
 };
 
+// Types for quote form data structure
+export type Slab = {
+  width: number | null;
+  length: number | null;
+  thickness: number | null;
+  rebarSpacing: number | null;
+};
+export type Footing = {
+  length: number | null;
+  width: number | null;
+  depth: number | null;
+  rebarRows: number | null;
+};
+export type RoundPierHole = {
+  count: number | null;
+  diameter: number | null;
+  depth: number | null;
+};
+export type SquarePierHole = {
+  count: number | null;
+  width: number | null;
+  length: number | null;
+  depth: number | null;
+};
+export type TravelCost = {
+  trips: number | null;
+  trucks: number | null;
+  miles: number | null;
+};
+export type Labor = {
+  employees: number | null;
+  days: number | null;
+  costPerDay: number | null;
+};
+export type Equipment = {
+  name?: string;
+  daysUsed: number | null;
+  pricePerDay: number | null;
+};
+export type OtherExpense = {
+  name?: string;
+  cost: number | null;
+  costPerSqFt: number | null;
+};
+export type QuoteCosts = {
+  concretePrice: number | null;
+  rebarPrice: number | null;
+  travelPrice: number | null;
+};
+export type QuoteProfit = {
+  fixedAmount: number | null;
+  perSquareFoot: number | null;
+};
+
+export type QuoteFormData = {
+  jobDetails?: string;
+  slabs?: Slab[];
+  footings?: Footing[];
+  roundPierHoles?: RoundPierHole[];
+  squarePierHoles?: SquarePierHole[];
+  travelCosts?: TravelCost[];
+  labor?: Labor[];
+  equipment?: Equipment[];
+  otherExpenses?: OtherExpense[];
+  costs?: QuoteCosts;
+  profit?: QuoteProfit;
+}
+
 export type Quote = {
   id: string;
   quoteNumber: string;
@@ -53,6 +121,7 @@ export type Quote = {
   tax: number;
   total: number;
   status: QuoteStatus;
+  formData?: QuoteFormData; // To store the form state
 };
 
 export type Notification = {
@@ -63,11 +132,3 @@ export type Notification = {
   read: boolean;
   jobId?: string;
 };
-
-export type QuoteFormData = {
-  clientName?: string | null;
-  clientPhone?: string | null;
-  clientEmail?: string | null;
-  jobDetails?: string | null;
-  total: number;
-}
