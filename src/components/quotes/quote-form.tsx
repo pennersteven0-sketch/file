@@ -97,7 +97,7 @@ const quoteFormSchema = z.object({
 type QuoteFormValues = z.infer<typeof quoteFormSchema>;
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className={cn("text-lg font-semibold mt-6 mb-2")}>{children}</h3>
+  <h3 className="text-lg font-semibold mt-6 mb-2">{children}</h3>
 );
 
 export function QuoteForm() {
@@ -204,6 +204,7 @@ export function QuoteForm() {
 
     // Totals
     const total = concreteCost + rebarCost + laborCost + equipmentCost + travelCost + otherExpensesCost;
+    const totalCostPerSqFt = totalSlabSqFt > 0 ? total / totalSlabSqFt : 0;
 
     return {
       totalSlabSqFt: totalSlabSqFt.toFixed(2),
@@ -216,6 +217,7 @@ export function QuoteForm() {
       travelCost: travelCost.toFixed(2),
       otherExpensesCost: otherExpensesCost.toFixed(2),
       total: total.toFixed(2),
+      totalCostPerSqFt: totalCostPerSqFt.toFixed(2),
     };
   }, [watchedValues]);
 
@@ -257,10 +259,10 @@ export function QuoteForm() {
             {slabFields.map((field, index) => (
                 <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <FormField control={form.control} name={`slabs.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (ft)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`slabs.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (ft)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`slabs.${index}.thickness`} render={({ field }) => (<FormItem><FormLabel>Thickness (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`slabs.${index}.rebarSpacing`} render={({ field }) => (<FormItem><FormLabel>Rebar Spacing (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`slabs.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (ft)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`slabs.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (ft)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`slabs.${index}.thickness`} render={({ field }) => (<FormItem><FormLabel>Thickness (in)</FormLabel><FormControl><Input type="number" placeholder="4" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`slabs.${index}.rebarSpacing`} render={({ field }) => (<FormItem><FormLabel>Rebar Spacing (in)</FormLabel><FormControl><Input type="number" placeholder="18" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     </div>
                     <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
@@ -274,10 +276,10 @@ export function QuoteForm() {
             {footingFields.map((field, index) => (
                 <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <FormField control={form.control} name={`footings.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (ft)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`footings.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`footings.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`footings.${index}.rebarRows`} render={({ field }) => (<FormItem><FormLabel>Rebar Rows</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`footings.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (ft)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`footings.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`footings.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`footings.${index}.rebarRows`} render={({ field }) => (<FormItem><FormLabel>Rebar Rows</FormLabel><FormControl><Input type="number" placeholder="2" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     </div>
                     <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeFooting(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
@@ -291,9 +293,9 @@ export function QuoteForm() {
             {roundPierHoleFields.map((field, index) => (
                 <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`roundPierHoles.${index}.count`} render={({ field }) => (<FormItem><FormLabel>No. of holes</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`roundPierHoles.${index}.diameter`} render={({ field }) => (<FormItem><FormLabel>Diameter (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`roundPierHoles.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`roundPierHoles.${index}.count`} render={({ field }) => (<FormItem><FormLabel>No. of holes</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`roundPierHoles.${index}.diameter`} render={({ field }) => (<FormItem><FormLabel>Diameter (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`roundPierHoles.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     </div>
                     <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeRoundPierHole(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
@@ -307,10 +309,10 @@ export function QuoteForm() {
             {squarePierHoleFields.map((field, index) => (
                 <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <FormField control={form.control} name={`squarePierHoles.${index}.count`} render={({ field }) => (<FormItem><FormLabel>No. of holes</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`squarePierHoles.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`squarePierHoles.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`squarePierHoles.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`squarePierHoles.${index}.count`} render={({ field }) => (<FormItem><FormLabel>No. of holes</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`squarePierHoles.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`squarePierHoles.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`squarePierHoles.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     </div>
                     <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSquarePierHole(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
@@ -322,9 +324,9 @@ export function QuoteForm() {
         
         <SectionTitle>Costing</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-             <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/20ft stick</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.travelPrice" render={({ field }) => (<FormItem><FormLabel>Travel Price/mile</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" placeholder="200" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/20ft stick</FormLabel><FormControl><Input type="number" placeholder="5" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="costs.travelPrice" render={({ field }) => (<FormItem><FormLabel>Travel Price/mile</FormLabel><FormControl><Input type="number" placeholder="2.5" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
         </div>
 
         <Separator />
@@ -334,9 +336,9 @@ export function QuoteForm() {
             {laborFields.map((field, index) => (
                 <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`labor.${index}.employees`} render={({ field }) => (<FormItem><FormLabel>No. of employees</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`labor.${index}.days`} render={({ field }) => (<FormItem><FormLabel>No. of days</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`labor.${index}.costPerDay`} render={({ field }) => (<FormItem><FormLabel>Daily Rate per Employee</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`labor.${index}.employees`} render={({ field }) => (<FormItem><FormLabel>No. of employees</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`labor.${index}.days`} render={({ field }) => (<FormItem><FormLabel>No. of days</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`labor.${index}.costPerDay`} render={({ field }) => (<FormItem><FormLabel>Daily Rate per Employee</FormLabel><FormControl><Input type="number" placeholder="200" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     </div>
                     <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeLabor(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
@@ -351,9 +353,9 @@ export function QuoteForm() {
             {equipmentFields.map((field, index) => (
                 <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`equipment.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Equipment Name</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`equipment.${index}.daysUsed`} render={({ field }) => (<FormItem><FormLabel>Days Used</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`equipment.${index}.pricePerDay`} render={({ field }) => (<FormItem><FormLabel>Price Per Day</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`equipment.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Equipment Name</FormLabel><FormControl><Input placeholder="e.g. Concrete Pump" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`equipment.${index}.daysUsed`} render={({ field }) => (<FormItem><FormLabel>Days Used</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`equipment.${index}.pricePerDay`} render={({ field }) => (<FormItem><FormLabel>Price Per Day</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     </div>
                     <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeEquipment(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
@@ -368,9 +370,9 @@ export function QuoteForm() {
             {travelCostFields.map((field, index) => (
                 <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`travelCosts.${index}.trips`} render={({ field }) => (<FormItem><FormLabel>No. of trips</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`travelCosts.${index}.trucks`} render={({ field }) => (<FormItem><FormLabel>No. of trucks</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`travelCosts.${index}.miles`} render={({ field }) => (<FormItem><FormLabel>Miles per trip</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`travelCosts.${index}.trips`} render={({ field }) => (<FormItem><FormLabel>No. of trips</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`travelCosts.${index}.trucks`} render={({ field }) => (<FormItem><FormLabel>No. of trucks</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`travelCosts.${index}.miles`} render={({ field }) => (<FormItem><FormLabel>Miles per trip</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     </div>
                     <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeTravelCost(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
@@ -385,9 +387,9 @@ export function QuoteForm() {
             {otherExpenseFields.map((field, index) => (
                 <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`otherExpenses.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Expense Name</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`otherExpenses.${index}.cost`} render={({ field }) => (<FormItem><FormLabel>Cost</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`otherExpenses.${index}.costPerSqFt`} render={({ field }) => (<FormItem><FormLabel>Cost Per Sq. Ft.</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`otherExpenses.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Expense Name</FormLabel><FormControl><Input placeholder="e.g. Permit Fee" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`otherExpenses.${index}.cost`} render={({ field }) => (<FormItem><FormLabel>Cost</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`otherExpenses.${index}.costPerSqFt`} render={({ field }) => (<FormItem><FormLabel>Cost Per Sq. Ft.</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     </div>
                     <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeOtherExpense(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
@@ -412,6 +414,10 @@ export function QuoteForm() {
                     <div>
                         <p className="font-medium">Total Rebar (sticks):</p>
                         <p className="text-muted-foreground">{calculations.rebarSticks}</p>
+                    </div>
+                    <div>
+                        <p className="font-medium">Cost / Sq Ft:</p>
+                        <p className="text-muted-foreground">${calculations.totalCostPerSqFt}</p>
                     </div>
                 </div>
                 <Separator />
