@@ -59,6 +59,12 @@ const laborSchema = z.object({
   costPerDay: z.coerce.number().positive().optional().nullable(),
 });
 
+const equipmentSchema = z.object({
+    name: z.string().optional(),
+    daysUsed: z.coerce.number().positive().optional().nullable(),
+    pricePerDay: z.coerce.number().positive().optional().nullable(),
+});
+
 const costSchema = z.object({
   concretePrice: z.coerce.number().min(0).optional().nullable(),
   rebarPrice: z.coerce.number().min(0).optional().nullable(),
@@ -76,13 +82,14 @@ const quoteFormSchema = z.object({
   squarePierHoles: z.array(squarePierHoleSchema).optional(),
   travelCosts: z.array(travelCostSchema).optional(),
   labor: z.array(laborSchema).optional(),
+  equipment: z.array(equipmentSchema).optional(),
   costs: costSchema.optional(),
 });
 
 type QuoteFormValues = z.infer<typeof quoteFormSchema>;
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="text-lg font-semibold mt-6 mb-2">{children}</h3>
+  <h3 class="text-lg font-semibold mt-6 mb-2">{children}</h3>
 );
 
 export function QuoteForm() {
@@ -100,6 +107,7 @@ export function QuoteForm() {
       squarePierHoles: [],
       travelCosts: [],
       labor: [],
+      equipment: [],
       costs: {
         concretePrice: 200, // $/cubic yard
         rebarPrice: 5, // $/stick
@@ -114,12 +122,13 @@ export function QuoteForm() {
   const { fields: squarePierHoleFields, append: appendSquarePierHole, remove: removeSquarePierHole } = useFieldArray({ control: form.control, name: 'squarePierHoles' });
   const { fields: travelCostFields, append: appendTravelCost, remove: removeTravelCost } = useFieldArray({ control: form.control, name: 'travelCosts' });
   const { fields: laborFields, append: appendLabor, remove: removeLabor } = useFieldArray({ control: form.control, name: 'labor' });
+  const { fields: equipmentFields, append: appendEquipment, remove: removeEquipment } = useFieldArray({ control: form.control, name: 'equipment' });
 
 
   const watchedValues = useWatch({ control: form.control });
 
   const calculations = useMemo(() => {
-    const { slabs, footings, roundPierHoles, squarePierHoles, travelCosts, labor, costs } = watchedValues;
+    const { slabs, footings, roundPierHoles, squarePierHoles, travelCosts, labor, equipment, costs } = watchedValues;
     const REBAR_STICK_LENGTH = 20; // feet
     const REBAR_WASTE_FACTOR = 1.10; // 10%
 
@@ -165,6 +174,11 @@ export function QuoteForm() {
     const laborCost = (labor || []).reduce((acc, l) => {
       return acc + (l.employees || 0) * (l.days || 0) * (l.costPerDay || 0);
     }, 0);
+
+    // Equipment
+    const equipmentCost = (equipment || []).reduce((acc, e) => {
+      return acc + (e.daysUsed || 0) * (e.pricePerDay || 0);
+    }, 0);
     
     // Travel
     const travelCost = (travelCosts || []).reduce((acc, t) => {
@@ -172,7 +186,7 @@ export function QuoteForm() {
     }, 0);
 
     // Totals
-    const total = concreteCost + rebarCost + laborCost + travelCost;
+    const total = concreteCost + rebarCost + laborCost + equipmentCost + travelCost;
 
     return {
       totalSlabSqFt: totalSlabSqFt.toFixed(2),
@@ -181,6 +195,7 @@ export function QuoteForm() {
       rebarSticks: rebarSticks,
       rebarCost: rebarCost.toFixed(2),
       laborCost: laborCost.toFixed(2),
+      equipmentCost: equipmentCost.toFixed(2),
       travelCost: travelCost.toFixed(2),
       total: total.toFixed(2),
     };
@@ -311,6 +326,23 @@ export function QuoteForm() {
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => appendLabor({ employees: null, days: null, costPerDay: 200 })}><PlusCircle className="mr-2 h-4 w-4" />Add Labor</Button>
         </div>
+
+        <Separator />
+        
+        <SectionTitle>Equipment Costs</SectionTitle>
+        <div className="space-y-4">
+            {equipmentFields.map((field, index) => (
+                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField control={form.control} name={`equipment.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Equipment Name</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`equipment.${index}.daysUsed`} render={({ field }) => (<FormItem><FormLabel>Days Used</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`equipment.${index}.pricePerDay`} render={({ field }) => (<FormItem><FormLabel>Price Per Day</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeEquipment(index)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => appendEquipment({ name: '', daysUsed: null, pricePerDay: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Equipment</Button>
+        </div>
         
         <Separator />
 
@@ -353,6 +385,7 @@ export function QuoteForm() {
                     <p>Concrete: <span className="font-medium">${calculations.concreteCost}</span></p>
                     <p>Rebar: <span className="font-medium">${calculations.rebarCost}</span></p>
                     <p>Labor: <span className="font-medium">${calculations.laborCost}</span></p>
+                    <p>Equipment: <span className="font-medium">${calculations.equipmentCost}</span></p>
                     <p>Travel: <span className="font-medium">${calculations.travelCost}</span></p>
                     <Separator className="my-2"/>
                     <p className="text-xl font-bold">Total: <span className="text-primary">${calculations.total}</span></p>
