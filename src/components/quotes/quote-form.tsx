@@ -346,23 +346,6 @@ export function QuoteForm() {
         
         <Separator />
         
-        <SectionTitle>Travel Costs</SectionTitle>
-        <div className="space-y-4">
-            {travelCostFields.map((field, index) => (
-                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`travelCosts.${index}.trips`} render={({ field }) => (<FormItem><FormLabel>No. of trips</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`travelCosts.${index}.trucks`} render={({ field }) => (<FormItem><FormLabel>No. of trucks</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`travelCosts.${index}.miles`} render={({ field }) => (<FormItem><FormLabel>Miles per trip</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeTravelCost(index)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendTravelCost({ trips: null, trucks: null, miles: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Trip</Button>
-        </div>
-
-        <Separator />
-
         <SectionTitle>Equipment Costs</SectionTitle>
         <div className="space-y-4">
             {equipmentFields.map((field, index) => (
@@ -378,6 +361,23 @@ export function QuoteForm() {
             <Button type="button" variant="outline" size="sm" onClick={() => appendEquipment({ name: '', daysUsed: null, pricePerDay: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Equipment</Button>
         </div>
 
+        <Separator />
+
+        <SectionTitle>Travel Costs</SectionTitle>
+        <div className="space-y-4">
+            {travelCostFields.map((field, index) => (
+                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField control={form.control} name={`travelCosts.${index}.trips`} render={({ field }) => (<FormItem><FormLabel>No. of trips</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`travelCosts.${index}.trucks`} render={({ field }) => (<FormItem><FormLabel>No. of trucks</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`travelCosts.${index}.miles`} render={({ field }) => (<FormItem><FormLabel>Miles per trip</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeTravelCost(index)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => appendTravelCost({ trips: null, trucks: null, miles: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Trip</Button>
+        </div>
+        
         <Separator />
         
         <SectionTitle>Other Expenses</SectionTitle>
