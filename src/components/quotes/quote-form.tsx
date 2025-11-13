@@ -230,7 +230,7 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: null, rebarSpacing: 24 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: null, rebarSpacing: 18 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
         </div>
 
         {/* Footings */}
@@ -250,7 +250,7 @@ export function QuoteForm() {
 
         {/* Round Pier Holes */}
         <div className="space-y-2">
-            <FormLabel>Round Peer Hole Dimensions (count, in, in)</FormLabel>
+            <FormLabel>Round Pier Hole Dimensions (count, in, in)</FormLabel>
             {roundPierHoleFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-start">
                     <FormField control={form.control} name={`roundPierHoles.${index}.count`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of holes" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
