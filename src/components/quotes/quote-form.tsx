@@ -194,7 +194,7 @@ export function QuoteForm() {
 
         {/* Pier Holes */}
         <div className="space-y-2">
-            <FormLabel>Peer Hole Dimensions (Round)</FormLabel>
+            <FormLabel>Round Peer Hole Dimensions (count, in, in)</FormLabel>
             {pierHoleFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-start">
                     <FormField control={form.control} name={`pierHoles.${index}.count`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of holes" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
