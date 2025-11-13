@@ -11,6 +11,7 @@ type AppContextType = {
   addQuote: (quote: Quote) => void;
   updateQuoteStatus: (quoteId: string, status: Quote['status']) => void;
   deleteQuote: (quoteId: string) => void;
+  updateQuoteDate: (quoteId: string, date: Date) => void;
 };
 
 export const AppContext = createContext<AppContextType>({
@@ -20,6 +21,7 @@ export const AppContext = createContext<AppContextType>({
   addQuote: () => {},
   updateQuoteStatus: () => {},
   deleteQuote: () => {},
+  updateQuoteDate: () => {},
 });
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
@@ -39,10 +41,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const deleteQuote = (quoteId: string) => {
     setQuotes(prevQuotes => prevQuotes.filter(q => q.id !== quoteId));
   };
+  
+  const updateQuoteDate = (quoteId: string, date: Date) => {
+    setQuotes(prevQuotes =>
+      prevQuotes.map(q => (q.id === quoteId ? { ...q, date } : q))
+    );
+  };
 
 
   return (
-    <AppContext.Provider value={{ isSidebarOpen, setOpen, quotes, addQuote, updateQuoteStatus, deleteQuote }}>
+    <AppContext.Provider value={{ isSidebarOpen, setOpen, quotes, addQuote, updateQuoteStatus, deleteQuote, updateQuoteDate }}>
       {children}
     </AppContext.Provider>
   );

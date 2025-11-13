@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { CalendarPopover } from '@/components/quotes/calendar-popover';
 
 
 function QuoteStatusBadge({ status, onStatusChange, onDelete }: { status: Quote['status'], onStatusChange: (status: Quote['status']) => void, onDelete: () => void }) {
@@ -89,7 +90,7 @@ function QuoteStatusBadge({ status, onStatusChange, onDelete }: { status: Quote[
 }
 
 export default function QuotesPage() {
-  const { quotes, updateQuoteStatus, deleteQuote } = useContext(AppContext);
+  const { quotes, updateQuoteStatus, deleteQuote, updateQuoteDate } = useContext(AppContext);
 
   return (
     <div className="space-y-6 pb-16 md:pb-0">
@@ -133,7 +134,12 @@ export default function QuotesPage() {
                 <TableRow key={quote.id}>
                   <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
                   <TableCell>{quote.client.name}</TableCell>
-                  <TableCell>{quote.date.toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <CalendarPopover 
+                      date={quote.date}
+                      onDateChange={(newDate) => updateQuoteDate(quote.id, newDate)}
+                    />
+                  </TableCell>
                   <TableCell>${quote.total.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     <QuoteStatusBadge 
