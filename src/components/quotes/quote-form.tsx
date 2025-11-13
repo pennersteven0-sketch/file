@@ -221,21 +221,25 @@ export function QuoteForm() {
     
     // Grand Total
     const quoteTotal = totalCosts + profitAmount;
+    
+    const moneyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+    const numberFormatter = new Intl.NumberFormat('en-US');
+    const decimalFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     return {
-      totalSlabSqFt: totalSlabSqFt.toFixed(2),
-      totalCubicYards: totalCubicYards.toFixed(2),
-      concreteCost: concreteCost.toFixed(2),
-      rebarSticks: rebarSticks,
-      rebarCost: rebarCost.toFixed(2),
-      laborCost: laborCost.toFixed(2),
-      equipmentCost: equipmentCost.toFixed(2),
-      travelCost: travelCost.toFixed(2),
-      otherExpensesCost: otherExpensesCost.toFixed(2),
-      totalCosts: totalCosts.toFixed(2),
-      totalCostPerSqFt: totalCostPerSqFt.toFixed(2),
-      profitAmount: profitAmount.toFixed(2),
-      quoteTotal: quoteTotal.toFixed(2),
+      totalSlabSqFt: decimalFormatter.format(totalSlabSqFt),
+      totalCubicYards: decimalFormatter.format(totalCubicYards),
+      concreteCost: moneyFormatter.format(concreteCost),
+      rebarSticks: numberFormatter.format(rebarSticks),
+      rebarCost: moneyFormatter.format(rebarCost),
+      laborCost: moneyFormatter.format(laborCost),
+      equipmentCost: moneyFormatter.format(equipmentCost),
+      travelCost: moneyFormatter.format(travelCost),
+      otherExpensesCost: moneyFormatter.format(otherExpensesCost),
+      totalCosts: moneyFormatter.format(totalCosts),
+      totalCostPerSqFt: moneyFormatter.format(totalCostPerSqFt),
+      profitAmount: moneyFormatter.format(profitAmount),
+      quoteTotal: moneyFormatter.format(quoteTotal),
     };
   }, [watchedValues]);
 
@@ -435,19 +439,19 @@ export function QuoteForm() {
                     </div>
                     <div>
                         <p className="font-medium">Cost / Sq Ft:</p>
-                        <p className="text-muted-foreground">${calculations.totalCostPerSqFt}</p>
+                        <p className="text-muted-foreground">{calculations.totalCostPerSqFt}</p>
                     </div>
                 </div>
                 <Separator />
                 <div className="space-y-2 text-right">
-                    <p>Concrete: <span className="font-medium">${calculations.concreteCost}</span></p>
-                    <p>Rebar: <span className="font-medium">${calculations.rebarCost}</span></p>
-                    <p>Labor: <span className="font-medium">${calculations.laborCost}</span></p>
-                    <p>Equipment: <span className="font-medium">${calculations.equipmentCost}</span></p>
-                    <p>Travel: <span className="font-medium">${calculations.travelCost}</span></p>
-                    <p>Other Expenses: <span className="font-medium">${calculations.otherExpensesCost}</span></p>
+                    <p>Concrete: <span className="font-medium">{calculations.concreteCost}</span></p>
+                    <p>Rebar: <span className="font-medium">{calculations.rebarCost}</span></p>
+                    <p>Labor: <span className="font-medium">{calculations.laborCost}</span></p>
+                    <p>Equipment: <span className="font-medium">{calculations.equipmentCost}</span></p>
+                    <p>Travel: <span className="font-medium">{calculations.travelCost}</span></p>
+                    <p>Other Expenses: <span className="font-medium">{calculations.otherExpensesCost}</span></p>
                     <Separator className="my-2"/>
-                    <p className="text-xl font-bold">Total Costs: <span className="text-primary">${calculations.totalCosts}</span></p>
+                    <p className="text-xl font-bold">Total Costs: <span className="text-primary">{calculations.totalCosts}</span></p>
                 </div>
             </CardContent>
         </Card>
@@ -465,10 +469,10 @@ export function QuoteForm() {
         <Card className="mt-6 bg-muted/50">
             <CardContent className="p-6 space-y-4">
                 <div className="space-y-2 text-right">
-                    <p>Total Costs: <span className="font-medium">${calculations.totalCosts}</span></p>
-                    <p>Profit: <span className="font-medium">${calculations.profitAmount}</span></p>
+                    <p>Total Costs: <span className="font-medium">{calculations.totalCosts}</span></p>
+                    <p>Profit: <span className="font-medium">{calculations.profitAmount}</span></p>
                     <Separator className="my-2"/>
-                    <p className="text-2xl font-bold">Quote Total: <span className="text-primary">${calculations.quoteTotal}</span></p>
+                    <p className="text-2xl font-bold">Quote Total: <span className="text-primary">{calculations.quoteTotal}</span></p>
                 </div>
             </CardContent>
         </Card>
