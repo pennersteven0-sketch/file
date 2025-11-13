@@ -219,62 +219,70 @@ export function QuoteForm() {
         <SectionTitle>Measurements</SectionTitle>
         
         {/* Slabs */}
-        <div className="space-y-2">
-            <FormLabel>Slab Dimensions (ft, ft, in, in)</FormLabel>
+        <div className="space-y-4">
+            <h4 className="font-medium">Slabs</h4>
             {slabFields.map((field, index) => (
-                <div key={field.id} className="flex gap-2 items-start">
-                    <FormField control={form.control} name={`slabs.${index}.length`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Length (ft)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`slabs.${index}.width`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Width (ft)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`slabs.${index}.thickness`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Thickness (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`slabs.${index}.rebarSpacing`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Rebar Spacing (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
+                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <FormField control={form.control} name={`slabs.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (ft)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`slabs.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (ft)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`slabs.${index}.thickness`} render={({ field }) => (<FormItem><FormLabel>Thickness (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`slabs.${index}.rebarSpacing`} render={({ field }) => (<FormItem><FormLabel>Rebar Spacing (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: null, rebarSpacing: 18 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
         </div>
 
         {/* Footings */}
-        <div className="space-y-2">
-            <FormLabel>Footing Dimensions (ft, in, in, #)</FormLabel>
+        <div className="space-y-4">
+            <h4 className="font-medium">Footings</h4>
             {footingFields.map((field, index) => (
-                <div key={field.id} className="flex gap-2 items-start">
-                    <FormField control={form.control} name={`footings.${index}.length`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Length (ft)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`footings.${index}.width`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Width (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`footings.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`footings.${index}.rebarRows`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Rebar Rows" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeFooting(index)}><Trash2 className="h-4 w-4" /></Button>
+                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <FormField control={form.control} name={`footings.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (ft)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`footings.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`footings.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`footings.${index}.rebarRows`} render={({ field }) => (<FormItem><FormLabel>Rebar Rows</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeFooting(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: null, width: null, depth: null, rebarRows: 2 })}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>
         </div>
 
         {/* Round Pier Holes */}
-        <div className="space-y-2">
-            <FormLabel>Round Pier Hole Dimensions (count, in, in)</FormLabel>
+        <div className="space-y-4">
+            <h4 className="font-medium">Round Pier Holes</h4>
             {roundPierHoleFields.map((field, index) => (
-                <div key={field.id} className="flex gap-2 items-start">
-                    <FormField control={form.control} name={`roundPierHoles.${index}.count`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of holes" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`roundPierHoles.${index}.diameter`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Diameter (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`roundPierHoles.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeRoundPierHole(index)}><Trash2 className="h-4 w-4" /></Button>
+                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField control={form.control} name={`roundPierHoles.${index}.count`} render={({ field }) => (<FormItem><FormLabel>No. of holes</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`roundPierHoles.${index}.diameter`} render={({ field }) => (<FormItem><FormLabel>Diameter (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`roundPierHoles.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeRoundPierHole(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendRoundPierHole({ count: null, diameter: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Round Pier Holes</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendRoundPierHole({ count: null, diameter: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Round Pier Hole</Button>
         </div>
 
         {/* Square Pier Holes */}
-        <div className="space-y-2">
-            <FormLabel>Square Pier Hole Dimensions (count, in, in, in)</FormLabel>
+        <div className="space-y-4">
+            <h4 className="font-medium">Square Pier Holes</h4>
             {squarePierHoleFields.map((field, index) => (
-                <div key={field.id} className="flex gap-2 items-start">
-                    <FormField control={form.control} name={`squarePierHoles.${index}.count`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of holes" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`squarePierHoles.${index}.length`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Length (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`squarePierHoles.${index}.width`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Width (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`squarePierHoles.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeSquarePierHole(index)}><Trash2 className="h-4 w-4" /></Button>
+                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <FormField control={form.control} name={`squarePierHoles.${index}.count`} render={({ field }) => (<FormItem><FormLabel>No. of holes</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`squarePierHoles.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`squarePierHoles.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`squarePierHoles.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSquarePierHole(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendSquarePierHole({ count: null, length: null, width: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Square Pier Holes</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendSquarePierHole({ count: null, length: null, width: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Square Pier Hole</Button>
         </div>
 
         <Separator />
@@ -289,14 +297,16 @@ export function QuoteForm() {
         <Separator />
 
         <SectionTitle>Labor</SectionTitle>
-        <div className="space-y-2">
-            <FormLabel>Labor Costs</FormLabel>
+        <div className="space-y-4">
+            <h4 className="font-medium">Labor Costs</h4>
             {laborFields.map((field, index) => (
-                <div key={field.id} className="flex gap-2 items-start">
-                    <FormField control={form.control} name={`labor.${index}.employees`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of employees" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`labor.${index}.days`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of days" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`labor.${index}.costPerDay`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Daily Rate per Employee" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeLabor(index)}><Trash2 className="h-4 w-4" /></Button>
+                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField control={form.control} name={`labor.${index}.employees`} render={({ field }) => (<FormItem><FormLabel>No. of employees</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`labor.${index}.days`} render={({ field }) => (<FormItem><FormLabel>No. of days</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`labor.${index}.costPerDay`} render={({ field }) => (<FormItem><FormLabel>Daily Rate per Employee</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeLabor(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => appendLabor({ employees: null, days: null, costPerDay: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Labor</Button>
@@ -305,14 +315,16 @@ export function QuoteForm() {
         <Separator />
 
         <SectionTitle>Travel Costs</SectionTitle>
-        <div className="space-y-2">
-            <FormLabel>Trips (count, count, miles)</FormLabel>
+        <div className="space-y-4">
+            <h4 className="font-medium">Trips</h4>
             {travelCostFields.map((field, index) => (
-                <div key={field.id} className="flex gap-2 items-start">
-                    <FormField control={form.control} name={`travelCosts.${index}.trips`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of trips" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`travelCosts.${index}.trucks`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of trucks" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`travelCosts.${index}.miles`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Miles per trip" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeTravelCost(index)}><Trash2 className="h-4 w-4" /></Button>
+                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField control={form.control} name={`travelCosts.${index}.trips`} render={({ field }) => (<FormItem><FormLabel>No. of trips</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`travelCosts.${index}.trucks`} render={({ field }) => (<FormItem><FormLabel>No. of trucks</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`travelCosts.${index}.miles`} render={({ field }) => (<FormItem><FormLabel>Miles per trip</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeTravelCost(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => appendTravelCost({ trips: null, trucks: null, miles: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Trip</Button>
