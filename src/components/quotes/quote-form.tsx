@@ -45,10 +45,17 @@ const squarePierHoleSchema = z.object({
   depth: z.coerce.number().positive().optional().nullable(),
 });
 
+const travelCostSchema = z.object({
+  trips: z.coerce.number().int().positive().optional().nullable(),
+  trucks: z.coerce.number().int().positive().optional().nullable(),
+  miles: z.coerce.number().positive().optional().nullable(),
+});
+
 const costSchema = z.object({
   concretePrice: z.coerce.number().min(0).optional().nullable(),
   rebarPrice: z.coerce.number().min(0).optional().nullable(),
   laborPrice: z.coerce.number().min(0).optional().nullable(),
+  travelPrice: z.coerce.number().min(0).optional().nullable(),
 });
 
 const quoteFormSchema = z.object({
@@ -60,6 +67,7 @@ const quoteFormSchema = z.object({
   footings: z.array(footingSchema).optional(),
   roundPierHoles: z.array(roundPierHoleSchema).optional(),
   squarePierHoles: z.array(squarePierHoleSchema).optional(),
+  travelCosts: z.array(travelCostSchema).optional(),
   costs: costSchema.optional(),
 });
 
@@ -82,10 +90,12 @@ export function QuoteForm() {
       footings: [],
       roundPierHoles: [],
       squarePierHoles: [],
+      travelCosts: [],
       costs: {
         concretePrice: 200, // $/cubic yard
         rebarPrice: 1.5, // $/linear foot
         laborPrice: 5, // $/square foot
+        travelPrice: 2.5, // $/mile
       },
     },
   });
@@ -94,12 +104,13 @@ export function QuoteForm() {
   const { fields: footingFields, append: appendFooting, remove: removeFooting } = useFieldArray({ control: form.control, name: 'footings' });
   const { fields: roundPierHoleFields, append: appendRoundPierHole, remove: removeRoundPierHole } = useFieldArray({ control: form.control, name: 'roundPierHoles' });
   const { fields: squarePierHoleFields, append: appendSquarePierHole, remove: removeSquarePierHole } = useFieldArray({ control: form.control, name: 'squarePierHoles' });
+  const { fields: travelCostFields, append: appendTravelCost, remove: removeTravelCost } = useFieldArray({ control: form.control, name: 'travelCosts' });
 
 
   const watchedValues = useWatch({ control: form.control });
 
   const calculations = useMemo(() => {
-    const { slabs, footings, roundPierHoles, squarePierHoles, costs } = watchedValues;
+    const { slabs, footings, roundPierHoles, squarePierHoles, travelCosts, costs } = watchedValues;
 
     // Slab Calculations
     const totalSlabSqFt = (slabs || []).reduce((acc, s) => acc + (s.length || 0) * (s.width || 0), 0);
@@ -134,8 +145,13 @@ export function QuoteForm() {
     // Labor
     const laborCost = totalSlabSqFt * (costs?.laborPrice || 0);
     
+    // Travel
+    const travelCost = (travelCosts || []).reduce((acc, t) => {
+        return acc + (t.trips || 0) * (t.trucks || 0) * (t.miles || 0) * (costs?.travelPrice || 0);
+    }, 0);
+
     // Totals
-    const total = concreteCost + rebarCost + laborCost;
+    const total = concreteCost + rebarCost + laborCost + travelCost;
 
     return {
       totalSlabSqFt: totalSlabSqFt.toFixed(2),
@@ -144,6 +160,7 @@ export function QuoteForm() {
       totalRebar: totalRebar.toFixed(2),
       rebarCost: rebarCost.toFixed(2),
       laborCost: laborCost.toFixed(2),
+      travelCost: travelCost.toFixed(2),
       total: total.toFixed(2),
     };
   }, [watchedValues]);
@@ -191,7 +208,7 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: 4 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
         </div>
 
         {/* Footings */}
@@ -205,7 +222,7 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeFooting(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: null, width: 12, depth: 12 })}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: null, width: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>
         </div>
 
         {/* Round Pier Holes */}
@@ -219,7 +236,7 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeRoundPierHole(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendRoundPierHole({ count: null, diameter: 12, depth: 24 })}><PlusCircle className="mr-2 h-4 w-4" />Add Round Pier Holes</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendRoundPierHole({ count: null, diameter: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Round Pier Holes</Button>
         </div>
 
         {/* Square Pier Holes */}
@@ -234,17 +251,33 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeSquarePierHole(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendSquarePierHole({ count: null, length: 12, width: 12, depth: 24 })}><PlusCircle className="mr-2 h-4 w-4" />Add Square Pier Holes</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendSquarePierHole({ count: null, length: null, width: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Square Pier Holes</Button>
         </div>
-
 
         <Separator />
         
         <SectionTitle>Costing</SectionTitle>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
              <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
              <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/ft</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
              <FormField control={form.control} name="costs.laborPrice" render={({ field }) => (<FormItem><FormLabel>Labor Price/ft²</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="costs.travelPrice" render={({ field }) => (<FormItem><FormLabel>Travel Price/mile</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+        </div>
+
+        <Separator />
+
+        <SectionTitle>Travel Costs</SectionTitle>
+        <div className="space-y-2">
+            <FormLabel>Trips (count, count, miles)</FormLabel>
+            {travelCostFields.map((field, index) => (
+                <div key={field.id} className="flex gap-2 items-start">
+                    <FormField control={form.control} name={`travelCosts.${index}.trips`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of trips" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`travelCosts.${index}.trucks`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of trucks" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`travelCosts.${index}.miles`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Miles per trip" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeTravelCost(index)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => appendTravelCost({ trips: null, trucks: null, miles: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Trip</Button>
         </div>
 
         <Separator />
@@ -271,6 +304,7 @@ export function QuoteForm() {
                     <p>Concrete: <span className="font-medium">${calculations.concreteCost}</span></p>
                     <p>Rebar: <span className="font-medium">${calculations.rebarCost}</span></p>
                     <p>Labor: <span className="font-medium">${calculations.laborCost}</span></p>
+                    <p>Travel: <span className="font-medium">${calculations.travelCost}</span></p>
                     <Separator className="my-2"/>
                     <p className="text-xl font-bold">Total: <span className="text-primary">${calculations.total}</span></p>
                 </div>
