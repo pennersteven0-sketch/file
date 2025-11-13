@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AppContext } from '@/components/app-provider';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
@@ -11,6 +11,7 @@ import { TaskParser } from '@/components/jobs/task-parser';
 import type { Task, Job } from '@/lib/types';
 import { format } from 'date-fns';
 import { QuoteForm } from '@/components/quotes/quote-form';
+import { Input } from '@/components/ui/input';
 
 const DetailRow = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => {
     const Icon = icon;
@@ -29,9 +30,43 @@ export default function JobDetailsPage() {
   const { jobs, updateJob } = useContext(AppContext);
   const job = jobs.find(j => j.id === id);
 
+  const [isEditingLocation, setIsEditingLocation] = useState(false);
+  const [editingLocation, setEditingLocation] = useState('');
+
   if (!job) {
     notFound();
   }
+  
+  const handleStartEditingLocation = () => {
+    setEditingLocation(job.location);
+    setIsEditingLocation(true);
+  };
+  
+  const handleUpdateLocation = () => {
+    if (editingLocation.trim() !== job.location) {
+        const updatedJob = { ...job, location: editingLocation.trim() };
+        updateJob(updatedJob);
+    }
+    setIsEditingLocation(false);
+  };
+  
+  const handleLocationKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+        handleUpdateLocation();
+    } else if (e.key === 'Escape') {
+        setIsEditingLocation(false);
+    }
+  };
+
+  const isUrl = (str: string) => {
+    try {
+      new URL(str);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
 
   const handleQuoteUpdate = (updatedQuoteDetails: Job['quoteDetails']) => {
     if (updatedQuoteDetails) {
@@ -60,7 +95,26 @@ export default function JobDetailsPage() {
         <h1 className="text-3xl font-bold tracking-tight">{job.title}</h1>
         <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />
-          <span>{job.location}</span>
+            {isEditingLocation ? (
+                <Input
+                    value={editingLocation}
+                    onChange={(e) => setEditingLocation(e.target.value)}
+                    onBlur={handleUpdateLocation}
+                    onKeyDown={handleLocationKeyDown}
+                    className="h-8"
+                    autoFocus
+                />
+            ) : (
+                <span onClick={handleStartEditingLocation} className="cursor-pointer hover:text-primary">
+                    {isUrl(job.location) ? (
+                        <a href={job.location} target="_blank" rel="noopener noreferrer" className="underline">
+                            {job.location}
+                        </a>
+                    ) : (
+                        job.location || 'Click to set location'
+                    )}
+                </span>
+            )}
         </div>
       </header>
 
