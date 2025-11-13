@@ -10,7 +10,6 @@ export type TeamMember = {
   id:string;
   name: string;
   phone: string;
-  avatarUrl: string;
 };
 
 export type Task = {

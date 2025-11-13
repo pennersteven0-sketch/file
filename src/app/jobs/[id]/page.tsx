@@ -261,14 +261,7 @@ export default function JobDetailsPage() {
               <CardContent className="space-y-4">
                 {job.team.map(member => (
                   <div key={member.id} className="flex items-center gap-3">
-                    <Image
-                      src={member.avatarUrl}
-                      alt={member.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full"
-                      data-ai-hint="person face"
-                    />
+                    <User className="h-8 w-8 text-muted-foreground" />
                     <div>
                       <p className="font-semibold">{member.name}</p>
                     </div>

@@ -1,22 +1,17 @@
 import type { Job, Quote, Client, TeamMember, Notification } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
-const getAvatar = (id: string) => {
-  const img = PlaceHolderImages.find(p => p.id === id);
-  return img ? img.imageUrl : 'https://picsum.photos/seed/default/100/100';
-}
-
 export const clients: Client[] = [
   { id: 'cli-1', name: 'Oakridge Properties', contactPerson: 'John Smith', phone: '555-1234', email: 'john@oakprop.com' },
   { id: 'cli-2', name: 'Summit Homes', contactPerson: 'Jane Doe', phone: '555-5678', email: 'jane@summithomes.com' },
 ];
 
 export const teamMembers: TeamMember[] = [
-  { id: 'tm-1', name: 'Mike Johnson', phone: '555-1111', avatarUrl: getAvatar('avatar1') },
-  { id: 'tm-2', name: 'Carlos Gomez', phone: '555-2222', avatarUrl: getAvatar('avatar2') },
-  { id: 'tm-3', name: 'David Chen', phone: '555-3333', avatarUrl: getAvatar('avatar3') },
-  { id: 'tm-4', name: 'Alex Rodriguez', phone: '555-4444', avatarUrl: getAvatar('avatar4') },
-  { id: 'tm-5', name: 'Sam Wilson', phone: '555-5555', avatarUrl: getAvatar('avatar5') },
+  { id: 'tm-1', name: 'Mike Johnson', phone: '555-1111' },
+  { id: 'tm-2', name: 'Carlos Gomez', phone: '555-2222' },
+  { id: 'tm-3', name: 'David Chen', phone: '555-3333' },
+  { id: 'tm-4', name: 'Alex Rodriguez', phone: '555-4444' },
+  { id: 'tm-5', name: 'Sam Wilson', phone: '555-5555' },
 ];
 
 export const jobs: Job[] = [

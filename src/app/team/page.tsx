@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { AppContext } from '@/components/app-provider';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreVertical, Edit, Trash2, Phone } from 'lucide-react';
+import { PlusCircle, MoreVertical, Edit, Trash2, Phone, User } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { TeamMemberForm } from '@/components/team/team-member-form';
 import type { TeamMember } from '@/lib/types';
@@ -64,14 +64,9 @@ export default function TeamPage() {
         {teamMembers.map(member => (
           <Card key={member.id} className="relative group">
             <CardContent className="flex flex-col items-center pt-6 text-center">
-              <Image
-                src={member.avatarUrl}
-                alt={member.name}
-                width={80}
-                height={80}
-                className="rounded-full mb-4"
-                data-ai-hint="person face"
-              />
+              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+                <User className="w-10 h-10 text-muted-foreground" />
+              </div>
               <p className="font-semibold text-lg">{member.name}</p>
               {member.phone && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
