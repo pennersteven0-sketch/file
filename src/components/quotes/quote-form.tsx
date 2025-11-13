@@ -217,7 +217,7 @@ export function QuoteForm() {
     const totalCostPerSqFt = totalSlabSqFt > 0 ? totalCosts / totalSlabSqFt : 0;
     
     // Profit
-    const profitAmount = (profit?.fixedAmount || 0) + ((profit?.perSquareFoot || 0) * totalSlabSqFt);
+    const profitAmount = (parseFloat(String(profit?.fixedAmount || 0))) + (parseFloat(String(profit?.perSquareFoot || 0)) * totalSlabSqFt);
     
     // Grand Total
     const quoteTotal = totalCosts + profitAmount;
