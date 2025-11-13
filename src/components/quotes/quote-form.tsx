@@ -276,12 +276,12 @@ export function QuoteForm() {
 
         <SectionTitle>Labor</SectionTitle>
         <div className="space-y-2">
-            <FormLabel>Labor Costs (employees, days, cost/day)</FormLabel>
+            <FormLabel>Labor Costs</FormLabel>
             {laborFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-start">
                     <FormField control={form.control} name={`labor.${index}.employees`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of employees" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <FormField control={form.control} name={`labor.${index}.days`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of days" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`labor.${index}.costPerDay`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Cost per day" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`labor.${index}.costPerDay`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Daily Rate per Employee" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeLabor(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
