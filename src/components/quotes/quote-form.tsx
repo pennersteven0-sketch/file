@@ -78,6 +78,11 @@ const costSchema = z.object({
   travelPrice: z.coerce.number().min(0).optional().nullable(),
 });
 
+const profitSchema = z.object({
+    fixedAmount: z.coerce.number().min(0).optional().nullable(),
+    perSquareFoot: z.coerce.number().min(0).optional().nullable(),
+});
+
 const quoteFormSchema = z.object({
   clientName: z.string().optional(),
   clientPhone: z.string().optional(),
@@ -92,6 +97,7 @@ const quoteFormSchema = z.object({
   equipment: z.array(equipmentSchema).optional(),
   otherExpenses: z.array(otherExpenseSchema).optional(),
   costs: costSchema.optional(),
+  profit: profitSchema.optional(),
 });
 
 type QuoteFormValues = z.infer<typeof quoteFormSchema>;
@@ -122,6 +128,10 @@ export function QuoteForm() {
         rebarPrice: 5, // $/stick
         travelPrice: 2.5, // $/mile
       },
+      profit: {
+          fixedAmount: 0,
+          perSquareFoot: 0,
+      }
     },
   });
 
@@ -138,7 +148,7 @@ export function QuoteForm() {
   const watchedValues = useWatch({ control: form.control });
 
   const calculations = useMemo(() => {
-    const { slabs, footings, roundPierHoles, squarePierHoles, travelCosts, labor, equipment, otherExpenses, costs } = watchedValues;
+    const { slabs, footings, roundPierHoles, squarePierHoles, travelCosts, labor, equipment, otherExpenses, costs, profit } = watchedValues;
     const REBAR_STICK_LENGTH = 20; // feet
     const REBAR_WASTE_FACTOR = 1.10; // 10%
 
@@ -203,8 +213,14 @@ export function QuoteForm() {
     }, 0);
 
     // Totals
-    const total = concreteCost + rebarCost + laborCost + equipmentCost + travelCost + otherExpensesCost;
-    const totalCostPerSqFt = totalSlabSqFt > 0 ? total / totalSlabSqFt : 0;
+    const totalCosts = concreteCost + rebarCost + laborCost + equipmentCost + travelCost + otherExpensesCost;
+    const totalCostPerSqFt = totalSlabSqFt > 0 ? totalCosts / totalSlabSqFt : 0;
+    
+    // Profit
+    const profitAmount = (profit?.fixedAmount || 0) + ((profit?.perSquareFoot || 0) * totalSlabSqFt);
+    
+    // Grand Total
+    const quoteTotal = totalCosts + profitAmount;
 
     return {
       totalSlabSqFt: totalSlabSqFt.toFixed(2),
@@ -216,8 +232,10 @@ export function QuoteForm() {
       equipmentCost: equipmentCost.toFixed(2),
       travelCost: travelCost.toFixed(2),
       otherExpensesCost: otherExpensesCost.toFixed(2),
-      total: total.toFixed(2),
+      totalCosts: totalCosts.toFixed(2),
       totalCostPerSqFt: totalCostPerSqFt.toFixed(2),
+      profitAmount: profitAmount.toFixed(2),
+      quoteTotal: quoteTotal.toFixed(2),
     };
   }, [watchedValues]);
 
@@ -429,7 +447,28 @@ export function QuoteForm() {
                     <p>Travel: <span className="font-medium">${calculations.travelCost}</span></p>
                     <p>Other Expenses: <span className="font-medium">${calculations.otherExpensesCost}</span></p>
                     <Separator className="my-2"/>
-                    <p className="text-xl font-bold">Total Costs: <span className="text-primary">${calculations.total}</span></p>
+                    <p className="text-xl font-bold">Total Costs: <span className="text-primary">${calculations.totalCosts}</span></p>
+                </div>
+            </CardContent>
+        </Card>
+
+        <Separator />
+
+        <SectionTitle>Profit</SectionTitle>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <FormField control={form.control} name="profit.fixedAmount" render={({ field }) => (<FormItem><FormLabel>Fixed Profit Amount</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="profit.perSquareFoot" render={({ field }) => (<FormItem><FormLabel>Profit Per Sq. Ft.</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+        </div>
+        
+        <Separator />
+
+        <Card className="mt-6 bg-muted/50">
+            <CardContent className="p-6 space-y-4">
+                <div className="space-y-2 text-right">
+                    <p>Total Costs: <span className="font-medium">${calculations.totalCosts}</span></p>
+                    <p>Profit: <span className="font-medium">${calculations.profitAmount}</span></p>
+                    <Separator className="my-2"/>
+                    <p className="text-2xl font-bold">Quote Total: <span className="text-primary">${calculations.quoteTotal}</span></p>
                 </div>
             </CardContent>
         </Card>
