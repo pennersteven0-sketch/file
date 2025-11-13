@@ -32,9 +32,16 @@ const footingSchema = z.object({
   depth: z.coerce.number().positive().optional().nullable(),
 });
 
-const pierHoleSchema = z.object({
+const roundPierHoleSchema = z.object({
   count: z.coerce.number().int().positive().optional().nullable(),
   diameter: z.coerce.number().positive().optional().nullable(),
+  depth: z.coerce.number().positive().optional().nullable(),
+});
+
+const squarePierHoleSchema = z.object({
+  count: z.coerce.number().int().positive().optional().nullable(),
+  width: z.coerce.number().positive().optional().nullable(),
+  length: z.coerce.number().positive().optional().nullable(),
   depth: z.coerce.number().positive().optional().nullable(),
 });
 
@@ -51,7 +58,8 @@ const quoteFormSchema = z.object({
   jobDetails: z.string().optional(),
   slabs: z.array(slabSchema).optional(),
   footings: z.array(footingSchema).optional(),
-  pierHoles: z.array(pierHoleSchema).optional(),
+  roundPierHoles: z.array(roundPierHoleSchema).optional(),
+  squarePierHoles: z.array(squarePierHoleSchema).optional(),
   costs: costSchema.optional(),
 });
 
@@ -72,7 +80,8 @@ export function QuoteForm() {
       jobDetails: '',
       slabs: [],
       footings: [],
-      pierHoles: [],
+      roundPierHoles: [],
+      squarePierHoles: [],
       costs: {
         concretePrice: 200, // $/cubic yard
         rebarPrice: 1.5, // $/linear foot
@@ -83,12 +92,14 @@ export function QuoteForm() {
 
   const { fields: slabFields, append: appendSlab, remove: removeSlab } = useFieldArray({ control: form.control, name: 'slabs' });
   const { fields: footingFields, append: appendFooting, remove: removeFooting } = useFieldArray({ control: form.control, name: 'footings' });
-  const { fields: pierHoleFields, append: appendPierHole, remove: removePierHole } = useFieldArray({ control: form.control, name: 'pierHoles' });
+  const { fields: roundPierHoleFields, append: appendRoundPierHole, remove: removeRoundPierHole } = useFieldArray({ control: form.control, name: 'roundPierHoles' });
+  const { fields: squarePierHoleFields, append: appendSquarePierHole, remove: removeSquarePierHole } = useFieldArray({ control: form.control, name: 'squarePierHoles' });
+
 
   const watchedValues = useWatch({ control: form.control });
 
   const calculations = useMemo(() => {
-    const { slabs, footings, pierHoles, costs } = watchedValues;
+    const { slabs, footings, roundPierHoles, squarePierHoles, costs } = watchedValues;
 
     // Slab Calculations
     const totalSlabSqFt = (slabs || []).reduce((acc, s) => acc + (s.length || 0) * (s.width || 0), 0);
@@ -100,14 +111,19 @@ export function QuoteForm() {
     // Assuming 2 rows of rebar in footings
     const footingRebar = (footings || []).reduce((acc, f) => acc + (f.length || 0) * 2, 0);
 
-    // Pier Hole Calculations
-    const totalPierHoleCubicFt = (pierHoles || []).reduce((acc, p) => {
+    // Round Pier Hole Calculations
+    const totalRoundPierHoleCubicFt = (roundPierHoles || []).reduce((acc, p) => {
         const radius = ((p.diameter || 0) / 12) / 2;
         return acc + ((p.count || 0) * Math.PI * Math.pow(radius, 2) * ((p.depth || 0) / 12));
     }, 0);
     
+    // Square Pier Hole Calculations
+    const totalSquarePierHoleCubicFt = (squarePierHoles || []).reduce((acc, p) => {
+        return acc + ((p.count || 0) * ((p.length || 0) / 12) * ((p.width || 0) / 12) * ((p.depth || 0) / 12));
+    }, 0);
+
     // Concrete
-    const totalCubicFt = totalSlabCubicFt + totalFootingCubicFt + totalPierHoleCubicFt;
+    const totalCubicFt = totalSlabCubicFt + totalFootingCubicFt + totalRoundPierHoleCubicFt + totalSquarePierHoleCubicFt;
     const totalCubicYards = totalCubicFt / 27;
     const concreteCost = totalCubicYards * (costs?.concretePrice || 0);
     
@@ -147,17 +163,17 @@ export function QuoteForm() {
         <SectionTitle>Client Information</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField control={form.control} name="clientName" render={({ field }) => (
-                <FormItem><FormLabel>Client Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Client Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
             )}/>
             <FormField control={form.control} name="clientPhone" render={({ field }) => (
-                <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="555-123-4567" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="555-123-4567" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
             )}/>
         </div>
         <FormField control={form.control} name="clientEmail" render={({ field }) => (
-            <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input placeholder="john.doe@example.com" {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input placeholder="john.doe@example.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
         )}/>
         <FormField control={form.control} name="jobDetails" render={({ field }) => (
-            <FormItem><FormLabel>Job Details</FormLabel><FormControl><Textarea placeholder="Briefly describe the job" {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>Job Details</FormLabel><FormControl><Textarea placeholder="Briefly describe the job" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
         )}/>
 
         <Separator />
@@ -175,7 +191,7 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: undefined, width: undefined, thickness: 4 } as any)}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: 4 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
         </div>
 
         {/* Footings */}
@@ -189,22 +205,38 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeFooting(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: undefined, width: 12, depth: 12 } as any)}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: null, width: 12, depth: 12 })}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>
         </div>
 
-        {/* Pier Holes */}
+        {/* Round Pier Holes */}
         <div className="space-y-2">
-            <FormLabel>Round Peer Hole Dimensions (count, in, in)</FormLabel>
-            {pierHoleFields.map((field, index) => (
+            <FormLabel>Round Pier Hole Dimensions (count, in, in)</FormLabel>
+            {roundPierHoleFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-start">
-                    <FormField control={form.control} name={`pierHoles.${index}.count`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of holes" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`pierHoles.${index}.diameter`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Diameter (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`pierHoles.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removePierHole(index)}><Trash2 className="h-4 w-4" /></Button>
+                    <FormField control={form.control} name={`roundPierHoles.${index}.count`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of holes" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`roundPierHoles.${index}.diameter`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Diameter (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`roundPierHoles.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeRoundPierHole(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendPierHole({ count: undefined, diameter: 12, depth: 24 } as any)}><PlusCircle className="mr-2 h-4 w-4" />Add Pier Holes</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendRoundPierHole({ count: null, diameter: 12, depth: 24 })}><PlusCircle className="mr-2 h-4 w-4" />Add Round Pier Holes</Button>
         </div>
+
+        {/* Square Pier Holes */}
+        <div className="space-y-2">
+            <FormLabel>Square Pier Hole Dimensions (count, in, in, in)</FormLabel>
+            {squarePierHoleFields.map((field, index) => (
+                <div key={field.id} className="flex gap-2 items-start">
+                    <FormField control={form.control} name={`squarePierHoles.${index}.count`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of holes" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`squarePierHoles.${index}.length`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Length (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`squarePierHoles.${index}.width`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Width (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`squarePierHoles.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeSquarePierHole(index)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => appendSquarePierHole({ count: null, length: 12, width: 12, depth: 24 })}><PlusCircle className="mr-2 h-4 w-4" />Add Square Pier Holes</Button>
+        </div>
+
 
         <Separator />
         
