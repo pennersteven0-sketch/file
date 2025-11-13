@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import type { Quote } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -16,9 +16,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 
 function QuoteStatusBadge({ status, onStatusChange, onDelete }: { status: Quote['status'], onStatusChange: (status: Quote['status']) => void, onDelete: () => void }) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  
   const variant: { [key in Quote['status']]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
     'Draft': 'secondary',
     'Sent': 'default',
@@ -30,22 +43,48 @@ function QuoteStatusBadge({ status, onStatusChange, onDelete }: { status: Quote[
     'Sent': 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300',
   }
 
+  const handleDelete = () => {
+    onDelete();
+    setDialogOpen(false);
+  };
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Badge variant={variant[status]} className={`${bgClass[status]} cursor-pointer`}>{status}</Badge>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem onClick={() => onStatusChange('Accepted')}>
-          <CheckCircle className="mr-2 h-4 w-4" />
-          <span>Accepted</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={onDelete} className="text-destructive">
-          <Trash2 className="mr-2 h-4 w-4" />
-          <span>Delete</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Badge variant={variant[status]} className={`${bgClass[status]} cursor-pointer`}>{status}</Badge>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => onStatusChange('Accepted')}>
+            <CheckCircle className="mr-2 h-4 w-4" />
+            <span>Accepted</span>
+          </DropdownMenuItem>
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem 
+              className="text-destructive"
+              onSelect={(e) => e.preventDefault()} // Prevents DropdownMenu from closing
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              <span>Delete</span>
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the quote.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
