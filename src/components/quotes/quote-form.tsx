@@ -21,39 +21,39 @@ import { Card, CardContent } from '../ui/card';
 import { useMemo } from 'react';
 
 const slabSchema = z.object({
-  width: z.coerce.number().positive(),
-  length: z.coerce.number().positive(),
-  thickness: z.coerce.number().positive(),
+  width: z.coerce.number().positive().optional().nullable(),
+  length: z.coerce.number().positive().optional().nullable(),
+  thickness: z.coerce.number().positive().optional().nullable(),
 });
 
 const footingSchema = z.object({
-  length: z.coerce.number().positive(),
-  width: z.coerce.number().positive(),
-  depth: z.coerce.number().positive(),
+  length: z.coerce.number().positive().optional().nullable(),
+  width: z.coerce.number().positive().optional().nullable(),
+  depth: z.coerce.number().positive().optional().nullable(),
 });
 
 const pierHoleSchema = z.object({
-  count: z.coerce.number().int().positive(),
-  diameter: z.coerce.number().positive(),
-  depth: z.coerce.number().positive(),
+  count: z.coerce.number().int().positive().optional().nullable(),
+  diameter: z.coerce.number().positive().optional().nullable(),
+  depth: z.coerce.number().positive().optional().nullable(),
 });
 
 const costSchema = z.object({
-  concretePrice: z.coerce.number().min(0),
-  rebarPrice: z.coerce.number().min(0),
-  laborPrice: z.coerce.number().min(0),
-  taxRate: z.coerce.number().min(0).max(100),
+  concretePrice: z.coerce.number().min(0).optional().nullable(),
+  rebarPrice: z.coerce.number().min(0).optional().nullable(),
+  laborPrice: z.coerce.number().min(0).optional().nullable(),
+  taxRate: z.coerce.number().min(0).max(100).optional().nullable(),
 });
 
 const quoteFormSchema = z.object({
-  clientName: z.string().min(1, 'Client name is required'),
+  clientName: z.string().optional(),
   clientPhone: z.string().optional(),
-  clientEmail: z.string().email('Invalid email address').optional(),
-  jobDetails: z.string().min(1, 'Job details are required'),
-  slabs: z.array(slabSchema),
-  footings: z.array(footingSchema),
-  pierHoles: z.array(pierHoleSchema),
-  costs: costSchema,
+  clientEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
+  jobDetails: z.string().optional(),
+  slabs: z.array(slabSchema).optional(),
+  footings: z.array(footingSchema).optional(),
+  pierHoles: z.array(pierHoleSchema).optional(),
+  costs: costSchema.optional(),
 });
 
 type QuoteFormValues = z.infer<typeof quoteFormSchema>;
@@ -175,9 +175,9 @@ export function QuoteForm() {
             <FormLabel>Slab Dimensions (ft, ft, in)</FormLabel>
             {slabFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-start">
-                    <FormField control={form.control} name={`slabs.${index}.length`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Length (ft)" {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`slabs.${index}.width`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Width (ft)" {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`slabs.${index}.thickness`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Thickness (in)" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`slabs.${index}.length`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Length (ft)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`slabs.${index}.width`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Width (ft)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`slabs.${index}.thickness`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Thickness (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
@@ -189,9 +189,9 @@ export function QuoteForm() {
             <FormLabel>Footing Dimensions (ft, in, in)</FormLabel>
             {footingFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-start">
-                    <FormField control={form.control} name={`footings.${index}.length`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Length (ft)" {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`footings.${index}.width`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Width (in)" {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`footings.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`footings.${index}.length`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Length (ft)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`footings.${index}.width`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Width (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`footings.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeFooting(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
@@ -203,9 +203,9 @@ export function QuoteForm() {
             <FormLabel>Peer Hole Dimensions (Round)</FormLabel>
             {pierHoleFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-start">
-                    <FormField control={form.control} name={`pierHoles.${index}.count`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of holes" {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`pierHoles.${index}.diameter`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Diameter (in)" {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`pierHoles.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`pierHoles.${index}.count`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of holes" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`pierHoles.${index}.diameter`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Diameter (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`pierHoles.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <Button type="button" variant="ghost" size="icon" onClick={() => removePierHole(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
@@ -216,10 +216,10 @@ export function QuoteForm() {
         
         <SectionTitle>Costing</SectionTitle>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-             <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/ft</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.laborPrice" render={({ field }) => (<FormItem><FormLabel>Labor Price/ft²</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.taxRate" render={({ field }) => (<FormItem><FormLabel>Tax Rate (%)</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/ft</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="costs.laborPrice" render={({ field }) => (<FormItem><FormLabel>Labor Price/ft²</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="costs.taxRate" render={({ field }) => (<FormItem><FormLabel>Tax Rate (%)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
         </div>
 
         <Separator />
