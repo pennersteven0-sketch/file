@@ -343,26 +343,9 @@ export function QuoteForm() {
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => appendLabor({ employees: null, days: null, costPerDay: 200 })}><PlusCircle className="mr-2 h-4 w-4" />Add Labor</Button>
         </div>
-
-        <Separator />
-        
-        <SectionTitle>Equipment Costs</SectionTitle>
-        <div className="space-y-4">
-            {equipmentFields.map((field, index) => (
-                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`equipment.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Equipment Name</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`equipment.${index}.daysUsed`} render={({ field }) => (<FormItem><FormLabel>Days Used</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`equipment.${index}.pricePerDay`} render={({ field }) => (<FormItem><FormLabel>Price Per Day</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeEquipment(index)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendEquipment({ name: '', daysUsed: null, pricePerDay: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Equipment</Button>
-        </div>
         
         <Separator />
-
+        
         <SectionTitle>Travel Costs</SectionTitle>
         <div className="space-y-4">
             {travelCostFields.map((field, index) => (
@@ -376,6 +359,23 @@ export function QuoteForm() {
                 </div>
             ))}
             <Button type="button" variant="outline" size="sm" onClick={() => appendTravelCost({ trips: null, trucks: null, miles: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Trip</Button>
+        </div>
+
+        <Separator />
+
+        <SectionTitle>Equipment Costs</SectionTitle>
+        <div className="space-y-4">
+            {equipmentFields.map((field, index) => (
+                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField control={form.control} name={`equipment.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Equipment Name</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`equipment.${index}.daysUsed`} render={({ field }) => (<FormItem><FormLabel>Days Used</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`equipment.${index}.pricePerDay`} render={({ field }) => (<FormItem><FormLabel>Price Per Day</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeEquipment(index)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => appendEquipment({ name: '', daysUsed: null, pricePerDay: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Equipment</Button>
         </div>
 
         <Separator />
@@ -434,3 +434,5 @@ export function QuoteForm() {
     </Form>
   );
 }
+
+    
