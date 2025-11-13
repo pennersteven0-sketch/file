@@ -197,8 +197,8 @@ export function QuoteForm() {
     
     // Other Expenses
     const otherExpensesCost = (otherExpenses || []).reduce((acc, e) => {
-        const fixedCost = e.cost || 0;
-        const sqFtCost = (e.costPerSqFt || 0) * totalSlabSqFt;
+        const fixedCost = parseFloat(String(e.cost || 0));
+        const sqFtCost = parseFloat(String(e.costPerSqFt || 0)) * totalSlabSqFt;
         return acc + fixedCost + sqFtCost;
     }, 0);
 
@@ -434,7 +434,3 @@ export function QuoteForm() {
     </Form>
   );
 }
-
-    
-
-    
