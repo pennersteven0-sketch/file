@@ -88,7 +88,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         location: 'TBD', // This can be enhanced later
         dates: quote.dates,
         client: quote.client,
-        team: teamMembers.slice(0, 3), // Default team
+        team: [],
         tasks: [], // Start with no tasks
         status: 'Scheduled',
         description: quote.formData?.jobDetails || '',
@@ -154,3 +154,5 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     </AppContext.Provider>
   );
 };
+
+    

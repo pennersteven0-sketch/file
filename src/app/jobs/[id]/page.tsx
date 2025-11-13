@@ -4,10 +4,10 @@ import { useContext, useState } from 'react';
 import { AppContext } from '@/components/app-provider';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { User, MapPin, Calendar, Clock, Mail, Phone, Ruler, PlusCircle, Edit } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { User, MapPin, Calendar, Clock, Mail, Phone, Ruler, PlusCircle, Edit, Trash2, Users } from 'lucide-react';
 import { TaskParser } from '@/components/jobs/task-parser';
-import type { Task, Job, JobStatus } from '@/lib/types';
+import type { Task, Job, JobStatus, TeamMember } from '@/lib/types';
 import { format } from 'date-fns';
 import { QuoteForm } from '@/components/quotes/quote-form';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,9 @@ import { Separator } from '@/components/ui/separator';
 import { CalendarPopover } from '@/components/quotes/calendar-popover';
 import { JobStatusBadge } from '@/components/jobs/job-status-badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 const DetailRow = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => {
@@ -32,11 +35,13 @@ const DetailRow = ({ icon, label, children }: { icon: React.ElementType, label: 
 export default function JobDetailsPage() {
   const params = useParams();
   const id = params.id as string;
-  const { jobs, updateJob } = useContext(AppContext);
+  const { jobs, updateJob, teamMembers } = useContext(AppContext);
   const job = jobs.find(j => j.id === id);
 
   const [isEditingLocation, setIsEditingLocation] = useState(false);
   const [editingLocation, setEditingLocation] = useState('');
+  const [isTeamDialogOpen, setTeamDialogOpen] = useState(false);
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState<TeamMember[]>(job?.team || []);
 
   if (!job) {
     notFound();
@@ -95,6 +100,27 @@ export default function JobDetailsPage() {
     updateJob(updatedJob);
   };
 
+  const handleTeamSelectionChange = (member: TeamMember) => {
+    setSelectedTeamMembers(prev => 
+      prev.some(m => m.id === member.id)
+        ? prev.filter(m => m.id !== member.id)
+        : [...prev, member]
+    );
+  };
+
+  const handleSaveTeam = () => {
+    const updatedJob = { ...job, team: selectedTeamMembers };
+    updateJob(updatedJob);
+    setTeamDialogOpen(false);
+  };
+  
+  const handleRemoveTeamMember = (memberId: string) => {
+    const updatedTeam = job.team.filter(m => m.id !== memberId);
+    const updatedJob = { ...job, team: updatedTeam };
+    updateJob(updatedJob);
+  };
+
+
   const initialTasks: Task[] = job.tasks.length > 0 ? job.tasks : [];
   const { quoteDetails } = job;
   const formData = quoteDetails?.formData;
@@ -109,6 +135,7 @@ export default function JobDetailsPage() {
     <div className="space-y-6 pb-16 md:pb-0">
       <header>
         <h1 className="text-3xl font-bold tracking-tight">{job.title}</h1>
+        <p className="text-lg text-muted-foreground">{job.client.name}</p>
       </header>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -209,15 +236,13 @@ export default function JobDetailsPage() {
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="quote-details">
                 <Card>
-                  <AccordionTrigger className="w-full">
-                    <CardHeader className="flex-row items-center justify-between w-full pr-0">
+                  <AccordionTrigger className="w-full p-6 text-left">
                       <div>
                         <CardTitle>Quote Details</CardTitle>
                         <CardDescription>
                             Original quote {job.quoteDetails.quoteNumber} information.
                         </CardDescription>
                       </div>
-                    </CardHeader>
                   </AccordionTrigger>
                   <AccordionContent>
                     <CardContent>
@@ -253,25 +278,71 @@ export default function JobDetailsPage() {
             </CardContent>
           </Card>
 
-          {job.team.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Assigned Team</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {job.team.map(member => (
-                  <div key={member.id} className="flex items-center gap-3">
-                    <User className="h-8 w-8 text-muted-foreground" />
-                    <div>
-                      <p className="font-semibold">{member.name}</p>
+          <Card>
+            <CardHeader>
+              <CardTitle>Assigned Team</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {job.team.length > 0 ? (
+                job.team.map(member => (
+                  <div key={member.id} className="flex items-center justify-between gap-3 group">
+                    <div className="flex items-center gap-3">
+                      <User className="h-8 w-8 text-muted-foreground" />
+                      <div>
+                        <p className="font-semibold">{member.name}</p>
+                      </div>
                     </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => handleRemoveTeamMember(member.id)}>
+                      <Trash2 className="h-4 w-4 text-muted-foreground" />
+                    </Button>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center">No team members assigned.</p>
+              )}
+            </CardContent>
+            <CardFooter>
+              <Dialog open={isTeamDialogOpen} onOpenChange={setTeamDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="w-full" onClick={() => setSelectedTeamMembers(job.team)}>
+                    <Users className="mr-2 h-4 w-4" />
+                    Manage Team
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Assign Team Members</DialogTitle>
+                    <DialogDescription>Select the team members to assign to this job.</DialogDescription>
+                  </DialogHeader>
+                  <ScrollArea className="max-h-64">
+                    <div className="space-y-4 p-4">
+                    {teamMembers.map(member => (
+                      <div key={member.id} className="flex items-center gap-3">
+                        <Checkbox 
+                          id={`member-${member.id}`}
+                          checked={selectedTeamMembers.some(m => m.id === member.id)}
+                          onCheckedChange={() => handleTeamSelectionChange(member)}
+                        />
+                        <label htmlFor={`member-${member.id}`} className="flex items-center gap-3 cursor-pointer">
+                            <User className="h-8 w-8 text-muted-foreground" />
+                            <span className="font-medium">{member.name}</span>
+                        </label>
+                      </div>
+                    ))}
+                    </div>
+                  </ScrollArea>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setTeamDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={handleSaveTeam}>Save Changes</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </CardFooter>
+          </Card>
         </div>
       </div>
     </div>
   );
 }
+
+    
