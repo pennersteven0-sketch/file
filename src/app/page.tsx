@@ -1,85 +1,103 @@
+'use client';
+
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { jobs } from '@/lib/data';
-import type { Job } from '@/lib/types';
+import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Calendar, MapPin, Users } from 'lucide-react';
-
-const isToday = (someDate: Date) => {
-  const today = new Date();
-  return someDate.getDate() === today.getDate() &&
-    someDate.getMonth() === today.getMonth() &&
-    someDate.getFullYear() === today.getFullYear();
-};
-
-const isUpcoming = (someDate: Date) => {
-  return someDate.getTime() > new Date().getTime() && !isToday(someDate);
-};
-
-const JobCard = ({ job }: { job: Job }) => (
-  <Card className="hover:shadow-lg transition-shadow duration-300">
-    <CardHeader>
-      <CardTitle className="text-lg font-bold tracking-tight">{job.title}</CardTitle>
-    </CardHeader>
-    <CardContent className="grid gap-4">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <MapPin className="h-4 w-4" />
-        <span>{job.location}</span>
-      </div>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Calendar className="h-4 w-4" />
-        <span>{job.date.toLocaleDateString()}</span>
-      </div>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Users className="h-4 w-4" />
-        <span>{job.team.length} Team Members</span>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Badge variant={job.status === 'Completed' ? 'secondary' : 'default'} className={job.status === 'In Progress' ? 'bg-accent text-accent-foreground' : ''}>
-          {job.status}
-        </Badge>
-      </div>
-      <Button asChild variant="outline" size="sm" className="mt-2 w-full">
-        <Link href={`/jobs/${job.id}`}>
-          View Details <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
-      </Button>
-    </CardContent>
-  </Card>
-);
+import { jobs } from '@/lib/data';
+import { format } from 'date-fns';
+import { MapPin, ArrowRight } from 'lucide-react';
 
 export default function DashboardPage() {
-  const todayJobs = jobs.filter(job => isToday(new Date(job.date)));
-  const upcomingJobs = jobs.filter(job => isUpcoming(new Date(job.date)));
+  const [date, setDate] = useState<Date | undefined>(new Date());
+
+  const jobsByDate = useMemo(() => {
+    const groups: { [key: string]: typeof jobs } = {};
+    jobs.forEach(job => {
+      const jobDate = format(job.date, 'yyyy-MM-dd');
+      if (!groups[jobDate]) {
+        groups[jobDate] = [];
+      }
+      groups[jobDate].push(job);
+    });
+    return groups;
+  }, []);
+
+  const selectedJobs = useMemo(() => {
+    if (!date) return [];
+    const selectedDateStr = format(date, 'yyyy-MM-dd');
+    return jobsByDate[selectedDateStr] || [];
+  }, [date, jobsByDate]);
+
+  const DayContent = ({ date }: { date: Date }) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const count = jobsByDate[dateStr]?.length;
+    return (
+      <div className="relative h-full w-full flex items-center justify-center">
+        <span>{format(date, 'd')}</span>
+        {count && count > 0 && (
+          <span className="absolute bottom-0 right-0.5 text-[10px] h-4 w-4 flex items-center justify-center rounded-full bg-primary text-primary-foreground">
+            {count}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="space-y-8 pb-16 md:pb-0">
-      <section>
-        <h2 className="text-2xl font-bold tracking-tight mb-4">Today's Jobs</h2>
-        {todayJobs.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {todayJobs.map(job => (
-              <JobCard key={job.id} job={job} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-muted-foreground">No jobs scheduled for today.</p>
-        )}
-      </section>
-
-      <section>
-        <h2 className="text-2xl font-bold tracking-tight mb-4">Upcoming Jobs</h2>
-        {upcomingJobs.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {upcomingJobs.map(job => (
-              <JobCard key={job.id} job={job} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-muted-foreground">No upcoming jobs.</p>
-        )}
-      </section>
+    <div className="space-y-6 pb-16 md:pb-0">
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card className="md:col-span-2">
+          <CardContent className="p-2">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={setDate}
+              className="w-full"
+              components={{
+                DayContent: ({ date }) => DayContent({ date }),
+              }}
+              modifiers={{
+                hasJobs: Object.keys(jobsByDate).map(dateStr => new Date(dateStr + 'T00:00:00')),
+              }}
+              modifiersStyles={{
+                hasJobs: { fontWeight: 'bold' },
+              }}
+            />
+          </CardContent>
+        </Card>
+        <div className="space-y-4 md:col-span-1">
+          <h2 className="text-2xl font-bold tracking-tight">
+            Jobs for {date ? format(date, 'MMMM d, yyyy') : '...'}
+          </h2>
+          {selectedJobs.length > 0 ? (
+            <div className="space-y-4">
+              {selectedJobs.map(job => (
+                <Card key={job.id}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{job.title}</CardTitle>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      <span>{job.location}</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex justify-between items-center">
+                    <Badge variant={job.status === 'Completed' ? 'secondary' : 'default'} className={job.status === 'In Progress' ? 'bg-accent text-accent-foreground' : ''}>
+                      {job.status}
+                    </Badge>
+                    <Link href={`/jobs/${job.id}`} className="flex items-center text-sm text-primary hover:underline">
+                      View Details <ArrowRight className="ml-1 h-4 w-4" />
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground pt-4">No jobs scheduled for this day.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

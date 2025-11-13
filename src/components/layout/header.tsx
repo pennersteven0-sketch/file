@@ -12,9 +12,8 @@ import { notifications } from '@/lib/data';
 
 const getPageTitle = (pathname: string) => {
   if (pathname === '/') return 'Dashboard';
-  if (pathname.startsWith('/jobs')) return 'Job Details';
+  if (pathname.startsWith('/jobs')) return 'Jobs';
   if (pathname.startsWith('/quotes')) return 'Quotes';
-  if (pathname.startsWith('/calendar')) return 'Calendar';
   if (pathname.startsWith('/team')) return 'Team';
   if (pathname.startsWith('/notifications')) return 'Notifications';
   return 'ConexPro';
