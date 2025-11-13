@@ -84,7 +84,7 @@ export const quotes: Quote[] = [
     id: 'quote-1',
     quoteNumber: 'Q-2024-001',
     client: clients[1],
-    date: new Date(new Date().setDate(new Date().getDate() - 20)),
+    dates: [new Date(new Date().setDate(new Date().getDate() - 20))],
     validUntil: new Date(new Date().setDate(new Date().getDate() + 10)),
     items: [
       { description: 'Concrete Material (4000 PSI)', quantity: 12, unitPrice: 180, total: 2160 },
@@ -100,7 +100,7 @@ export const quotes: Quote[] = [
     id: 'quote-2',
     quoteNumber: 'Q-2024-002',
     client: clients[0],
-    date: new Date(new Date().setDate(new Date().getDate() - 5)),
+    dates: [new Date(new Date().setDate(new Date().getDate() - 5))],
     validUntil: new Date(new Date().setDate(new Date().getDate() + 25)),
     items: [
       { description: 'Concrete Material (3500 PSI)', quantity: 8, unitPrice: 170, total: 1360 },

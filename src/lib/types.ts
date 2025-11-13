@@ -46,7 +46,7 @@ export type Quote = {
   id: string;
   quoteNumber: string;
   client: Client;
-  date: Date;
+  dates: Date[];
   validUntil: Date;
   items: QuoteItem[];
   subtotal: number;

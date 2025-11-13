@@ -258,7 +258,7 @@ export function QuoteForm() {
         phone: data.clientPhone || 'N/A',
         email: data.clientEmail || 'N/A',
       } as Client,
-      date: new Date(),
+      dates: [],
       validUntil: new Date(new Date().setDate(new Date().getDate() + 30)),
       items: [], // Simplified for now
       subtotal: calculations.rawTotal,
@@ -493,8 +493,7 @@ export function QuoteForm() {
         <Card className="mt-6 bg-muted/50">
             <CardContent className="p-6 space-y-4">
                 <div className="space-y-2 text-right">
-                    <p>Total Costs: <span className="font-medium">{calculations.totalCosts}</span></p>
-                    <p>Profit: <span className="font-medium">{calculations.profitAmount}</span></p>
+                    <p>Total Costs: <span className="font-medium">{calculations.totalCosts}</span></p>                    <p>Profit: <span className="font-medium">{calculations.profitAmount}</span></p>
                     <Separator className="my-2"/>
                     <p className="text-2xl font-bold">Quote Total: <span className="text-primary">{calculations.quoteTotal}</span></p>
                 </div>

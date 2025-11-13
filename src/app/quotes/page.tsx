@@ -90,7 +90,7 @@ function QuoteStatusBadge({ status, onStatusChange, onDelete }: { status: Quote[
 }
 
 export default function QuotesPage() {
-  const { quotes, updateQuoteStatus, deleteQuote, updateQuoteDate } = useContext(AppContext);
+  const { quotes, updateQuoteStatus, deleteQuote, updateQuoteDates } = useContext(AppContext);
 
   return (
     <div className="space-y-6 pb-16 md:pb-0">
@@ -136,8 +136,8 @@ export default function QuotesPage() {
                   <TableCell>{quote.client.name}</TableCell>
                   <TableCell>
                     <CalendarPopover 
-                      date={quote.date}
-                      onDateChange={(newDate) => updateQuoteDate(quote.id, newDate)}
+                      dates={quote.dates}
+                      onDatesChange={(newDates) => updateQuoteDates(quote.id, newDates)}
                     />
                   </TableCell>
                   <TableCell>${quote.total.toFixed(2)}</TableCell>

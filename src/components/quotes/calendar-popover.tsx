@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import { jobs } from '@/lib/data';
 import { cn } from '@/lib/utils';
 
-export function CalendarPopover({ date, onDateChange }: { date: Date, onDateChange: (date: Date) => void }) {
+export function CalendarPopover({ dates, onDatesChange }: { dates: Date[], onDatesChange: (dates: Date[]) => void }) {
   const [isOpen, setOpen] = useState(false);
 
   const jobsByDate = useMemo(() => {
@@ -24,19 +24,11 @@ export function CalendarPopover({ date, onDateChange }: { date: Date, onDateChan
     return groups;
   }, []);
 
-  const handleSelect = (selectedDate: Date | undefined) => {
-    if (selectedDate) {
-      // If the same date is clicked again, deselect it by setting a "neutral" date like the original.
-      // Here we just re-set it, but a better implementation might be to nullify it or reset.
-      // For this implementation, we will allow re-setting to the same date or a new date.
-      if (date && format(selectedDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')) {
-        // This part is tricky without more context on what "deselect" should do.
-        // For now, we'll just allow changing to another date, or re-selecting the same one.
-        // Let's assume clicking the same date again is a no-op for selection logic, but we still close.
-      } else {
-        onDateChange(selectedDate);
-      }
-      setOpen(false);
+  const handleSelect = (selectedDates: Date[] | undefined) => {
+    if (selectedDates) {
+      onDatesChange(selectedDates);
+    } else {
+      onDatesChange([]);
     }
   };
 
@@ -55,6 +47,12 @@ export function CalendarPopover({ date, onDateChange }: { date: Date, onDateChan
     );
   };
 
+  const getButtonText = () => {
+    if (dates.length === 0) return "Pick dates";
+    if (dates.length === 1) return format(dates[0], 'PPP');
+    return `${dates.length} dates selected`;
+  }
+
   return (
     <Popover open={isOpen} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -62,17 +60,18 @@ export function CalendarPopover({ date, onDateChange }: { date: Date, onDateChan
           variant={'outline'}
           className={cn(
             'w-[240px] justify-start text-left font-normal',
-            !date && 'text-muted-foreground'
+            !dates || dates.length === 0 && 'text-muted-foreground'
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, 'PPP') : <span>Pick a date</span>}
+          <span>{getButtonText()}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
-          mode="single"
-          selected={date}
+          mode="multiple"
+          min={0}
+          selected={dates}
           onSelect={handleSelect}
           initialFocus
           components={{
