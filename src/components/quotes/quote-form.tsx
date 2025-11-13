@@ -105,7 +105,7 @@ const quoteFormSchema = z.object({
 type QuoteFormValues = z.infer<typeof quoteFormSchema>;
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="text-lg font-semibold mt-6 mb-2">{children}</h3>
+  <h3 class="text-lg font-semibold mt-6 mb-2">{children}</h3>
 );
 
 export function QuoteForm() {
@@ -506,3 +506,5 @@ export function QuoteForm() {
     </Form>
   );
 }
+
+    
