@@ -313,7 +313,6 @@ export function QuoteForm() {
 
         <SectionTitle>Labor</SectionTitle>
         <div className="space-y-4">
-            <h4 className="font-medium">Labor Costs</h4>
             {laborFields.map((field, index) => (
                 <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
