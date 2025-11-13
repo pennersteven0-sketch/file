@@ -309,7 +309,7 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeLabor(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendLabor({ employees: null, days: null, costPerDay: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Labor</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendLabor({ employees: null, days: null, costPerDay: 200 })}><PlusCircle className="mr-2 h-4 w-4" />Add Labor</Button>
         </div>
         
         <Separator />
