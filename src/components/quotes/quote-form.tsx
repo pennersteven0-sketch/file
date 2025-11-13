@@ -51,10 +51,15 @@ const travelCostSchema = z.object({
   miles: z.coerce.number().positive().optional().nullable(),
 });
 
+const laborSchema = z.object({
+  employees: z.coerce.number().int().positive().optional().nullable(),
+  days: z.coerce.number().positive().optional().nullable(),
+  costPerDay: z.coerce.number().positive().optional().nullable(),
+});
+
 const costSchema = z.object({
   concretePrice: z.coerce.number().min(0).optional().nullable(),
   rebarPrice: z.coerce.number().min(0).optional().nullable(),
-  laborPrice: z.coerce.number().min(0).optional().nullable(),
   travelPrice: z.coerce.number().min(0).optional().nullable(),
 });
 
@@ -68,6 +73,7 @@ const quoteFormSchema = z.object({
   roundPierHoles: z.array(roundPierHoleSchema).optional(),
   squarePierHoles: z.array(squarePierHoleSchema).optional(),
   travelCosts: z.array(travelCostSchema).optional(),
+  labor: z.array(laborSchema).optional(),
   costs: costSchema.optional(),
 });
 
@@ -91,10 +97,10 @@ export function QuoteForm() {
       roundPierHoles: [],
       squarePierHoles: [],
       travelCosts: [],
+      labor: [],
       costs: {
         concretePrice: 200, // $/cubic yard
         rebarPrice: 1.5, // $/linear foot
-        laborPrice: 5, // $/square foot
         travelPrice: 2.5, // $/mile
       },
     },
@@ -105,12 +111,13 @@ export function QuoteForm() {
   const { fields: roundPierHoleFields, append: appendRoundPierHole, remove: removeRoundPierHole } = useFieldArray({ control: form.control, name: 'roundPierHoles' });
   const { fields: squarePierHoleFields, append: appendSquarePierHole, remove: removeSquarePierHole } = useFieldArray({ control: form.control, name: 'squarePierHoles' });
   const { fields: travelCostFields, append: appendTravelCost, remove: removeTravelCost } = useFieldArray({ control: form.control, name: 'travelCosts' });
+  const { fields: laborFields, append: appendLabor, remove: removeLabor } = useFieldArray({ control: form.control, name: 'labor' });
 
 
   const watchedValues = useWatch({ control: form.control });
 
   const calculations = useMemo(() => {
-    const { slabs, footings, roundPierHoles, squarePierHoles, travelCosts, costs } = watchedValues;
+    const { slabs, footings, roundPierHoles, squarePierHoles, travelCosts, labor, costs } = watchedValues;
 
     // Slab Calculations
     const totalSlabSqFt = (slabs || []).reduce((acc, s) => acc + (s.length || 0) * (s.width || 0), 0);
@@ -143,7 +150,9 @@ export function QuoteForm() {
     const rebarCost = totalRebar * (costs?.rebarPrice || 0);
 
     // Labor
-    const laborCost = totalSlabSqFt * (costs?.laborPrice || 0);
+    const laborCost = (labor || []).reduce((acc, l) => {
+      return acc + (l.employees || 0) * (l.days || 0) * (l.costPerDay || 0);
+    }, 0);
     
     // Travel
     const travelCost = (travelCosts || []).reduce((acc, t) => {
@@ -257,13 +266,28 @@ export function QuoteForm() {
         <Separator />
         
         <SectionTitle>Costing</SectionTitle>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
              <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
              <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/ft</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.laborPrice" render={({ field }) => (<FormItem><FormLabel>Labor Price/ft²</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
              <FormField control={form.control} name="costs.travelPrice" render={({ field }) => (<FormItem><FormLabel>Travel Price/mile</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
         </div>
 
+        <Separator />
+
+        <SectionTitle>Labor</SectionTitle>
+        <div className="space-y-2">
+            <FormLabel>Labor Costs (employees, days, cost/day)</FormLabel>
+            {laborFields.map((field, index) => (
+                <div key={field.id} className="flex gap-2 items-start">
+                    <FormField control={form.control} name={`labor.${index}.employees`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of employees" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`labor.${index}.days`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of days" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`labor.${index}.costPerDay`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Cost per day" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeLabor(index)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => appendLabor({ employees: null, days: null, costPerDay: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Labor</Button>
+        </div>
+        
         <Separator />
 
         <SectionTitle>Travel Costs</SectionTitle>
