@@ -24,12 +24,14 @@ const slabSchema = z.object({
   width: z.coerce.number().positive().optional().nullable(),
   length: z.coerce.number().positive().optional().nullable(),
   thickness: z.coerce.number().positive().optional().nullable(),
+  rebarSpacing: z.coerce.number().positive().optional().nullable(),
 });
 
 const footingSchema = z.object({
   length: z.coerce.number().positive().optional().nullable(),
   width: z.coerce.number().positive().optional().nullable(),
   depth: z.coerce.number().positive().optional().nullable(),
+  rebarRows: z.coerce.number().int().positive().optional().nullable(),
 });
 
 const roundPierHoleSchema = z.object({
@@ -100,7 +102,7 @@ export function QuoteForm() {
       labor: [],
       costs: {
         concretePrice: 200, // $/cubic yard
-        rebarPrice: 1.5, // $/linear foot
+        rebarPrice: 20, // $/stick
         travelPrice: 2.5, // $/mile
       },
     },
@@ -118,16 +120,24 @@ export function QuoteForm() {
 
   const calculations = useMemo(() => {
     const { slabs, footings, roundPierHoles, squarePierHoles, travelCosts, labor, costs } = watchedValues;
+    const REBAR_STICK_LENGTH = 20; // feet
+    const REBAR_WASTE_FACTOR = 1.10; // 10%
 
     // Slab Calculations
     const totalSlabSqFt = (slabs || []).reduce((acc, s) => acc + (s.length || 0) * (s.width || 0), 0);
     const totalSlabCubicFt = (slabs || []).reduce((acc, s) => acc + (s.length || 0) * (s.width || 0) * ((s.thickness || 0) / 12), 0);
-    const slabRebar = (slabs || []).reduce((acc, s) => acc + ((s.length || 0) * (Math.ceil((s.width || 0) / 2)) + (s.width || 0) * (Math.ceil((s.length || 0) / 2))), 0);
+    const slabRebarLinearFeet = (slabs || []).reduce((acc, s) => {
+        const spacingInFt = (s.rebarSpacing || 0) / 12;
+        if (!s.length || !s.width || !spacingInFt) return acc;
+        const rebarLengthwise = s.length * Math.ceil(s.width / spacingInFt);
+        const rebarWidthwise = s.width * Math.ceil(s.length / spacingInFt);
+        return acc + rebarLengthwise + rebarWidthwise;
+    }, 0);
+
 
     // Footing Calculations
     const totalFootingCubicFt = (footings || []).reduce((acc, f) => acc + (f.length || 0) * ((f.width || 0) / 12) * ((f.depth || 0) / 12), 0);
-    // Assuming 2 rows of rebar in footings
-    const footingRebar = (footings || []).reduce((acc, f) => acc + (f.length || 0) * 2, 0);
+    const footingRebarLinearFeet = (footings || []).reduce((acc, f) => acc + (f.length || 0) * (f.rebarRows || 0), 0);
 
     // Round Pier Hole Calculations
     const totalRoundPierHoleCubicFt = (roundPierHoles || []).reduce((acc, p) => {
@@ -146,8 +156,10 @@ export function QuoteForm() {
     const concreteCost = totalCubicYards * (costs?.concretePrice || 0);
     
     // Rebar
-    const totalRebar = slabRebar + footingRebar;
-    const rebarCost = totalRebar * (costs?.rebarPrice || 0);
+    const totalRebarLinearFeet = slabRebarLinearFeet + footingRebarLinearFeet;
+    const totalRebarWithWaste = totalRebarLinearFeet * REBAR_WASTE_FACTOR;
+    const rebarSticks = Math.ceil(totalRebarWithWaste / REBAR_STICK_LENGTH);
+    const rebarCost = rebarSticks * (costs?.rebarPrice || 0);
 
     // Labor
     const laborCost = (labor || []).reduce((acc, l) => {
@@ -166,7 +178,7 @@ export function QuoteForm() {
       totalSlabSqFt: totalSlabSqFt.toFixed(2),
       totalCubicYards: totalCubicYards.toFixed(2),
       concreteCost: concreteCost.toFixed(2),
-      totalRebar: totalRebar.toFixed(2),
+      rebarSticks: rebarSticks,
       rebarCost: rebarCost.toFixed(2),
       laborCost: laborCost.toFixed(2),
       travelCost: travelCost.toFixed(2),
@@ -208,35 +220,37 @@ export function QuoteForm() {
         
         {/* Slabs */}
         <div className="space-y-2">
-            <FormLabel>Slab Dimensions (ft, ft, in)</FormLabel>
+            <FormLabel>Slab Dimensions (ft, ft, in, in)</FormLabel>
             {slabFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-start">
                     <FormField control={form.control} name={`slabs.${index}.length`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Length (ft)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <FormField control={form.control} name={`slabs.${index}.width`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Width (ft)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <FormField control={form.control} name={`slabs.${index}.thickness`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Thickness (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`slabs.${index}.rebarSpacing`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Rebar Spacing (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: null, rebarSpacing: 24 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
         </div>
 
         {/* Footings */}
         <div className="space-y-2">
-            <FormLabel>Footing Dimensions (ft, in, in)</FormLabel>
+            <FormLabel>Footing Dimensions (ft, in, in, #)</FormLabel>
             {footingFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-start">
                     <FormField control={form.control} name={`footings.${index}.length`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Length (ft)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <FormField control={form.control} name={`footings.${index}.width`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Width (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <FormField control={form.control} name={`footings.${index}.depth`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Depth (in)" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`footings.${index}.rebarRows`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="Rebar Rows" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeFooting(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: null, width: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: null, width: null, depth: null, rebarRows: 2 })}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>
         </div>
 
         {/* Round Pier Holes */}
         <div className="space-y-2">
-            <FormLabel>Round Pier Hole Dimensions (count, in, in)</FormLabel>
+            <FormLabel>Round Peer Hole Dimensions (count, in, in)</FormLabel>
             {roundPierHoleFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2 items-start">
                     <FormField control={form.control} name={`roundPierHoles.${index}.count`} render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="number" placeholder="No. of holes" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
@@ -268,7 +282,7 @@ export function QuoteForm() {
         <SectionTitle>Costing</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
              <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/ft</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/stick</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
              <FormField control={form.control} name="costs.travelPrice" render={({ field }) => (<FormItem><FormLabel>Travel Price/mile</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
         </div>
 
@@ -319,8 +333,8 @@ export function QuoteForm() {
                         <p className="text-muted-foreground">{calculations.totalCubicYards}</p>
                     </div>
                     <div>
-                        <p className="font-medium">Total Rebar (ft):</p>
-                        <p className="text-muted-foreground">{calculations.totalRebar}</p>
+                        <p className="font-medium">Total Rebar (sticks):</p>
+                        <p className="text-muted-foreground">{calculations.rebarSticks}</p>
                     </div>
                 </div>
                 <Separator />
