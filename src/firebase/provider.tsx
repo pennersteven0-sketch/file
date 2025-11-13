@@ -75,14 +75,16 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       return;
     }
 
+    // Immediately try to sign in anonymously. If a user is already signed in,
+    // this will not override their session. If no user is signed in, it will
+    // create a new anonymous session.
+    initiateAnonymousSignIn(auth);
+
     setUserAuthState({ user: null, isUserLoading: true, userError: null }); // Reset on auth instance change
 
     const unsubscribe = onAuthStateChanged(
       auth,
       (firebaseUser) => { // Auth state determined
-        if (!firebaseUser) {
-          initiateAnonymousSignIn(auth);
-        }
         setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
       },
       (error) => { // Auth listener error
