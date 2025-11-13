@@ -23,7 +23,6 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 const teamMemberFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   role: z.enum(['Foreman', 'Laborer', 'Finisher', 'Driver']),
-  avatarUrl: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
 });
 
 type TeamMemberFormValues = z.infer<typeof teamMemberFormSchema>;
@@ -37,14 +36,13 @@ const roles: TeamMemberRole[] = ['Foreman', 'Finisher', 'Laborer', 'Driver'];
 
 export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
   const { toast } = useToast();
-  const { addTeamMember, updateTeamMember, teamMembers } = useContext(AppContext);
+  const { addTeamMember, updateTeamMember } = useContext(AppContext);
   
   const form = useForm<TeamMemberFormValues>({
     resolver: zodResolver(teamMemberFormSchema),
     defaultValues: {
       name: '',
       role: 'Laborer',
-      avatarUrl: '',
     },
   });
 
@@ -53,13 +51,11 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
       form.reset({
         name: member.name,
         role: member.role,
-        avatarUrl: member.avatarUrl,
       });
     } else {
       form.reset({
         name: '',
         role: 'Laborer',
-        avatarUrl: '',
       });
     }
   }, [member, form]);
@@ -67,6 +63,7 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
   function onSubmit(data: TeamMemberFormValues) {
     const getRandomAvatar = () => {
         const avatars = PlaceHolderImages.filter(p => p.id.startsWith('avatar'));
+        if (avatars.length === 0) return 'https://picsum.photos/seed/default/100/100';
         return avatars[Math.floor(Math.random() * avatars.length)].imageUrl;
     }
 
@@ -76,7 +73,6 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
         ...member,
         name: data.name,
         role: data.role,
-        avatarUrl: data.avatarUrl || member.avatarUrl,
       };
       updateTeamMember(updatedMemberData);
       toast({
@@ -90,7 +86,7 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
         id: `tm-${Date.now()}`,
         name: data.name,
         role: data.role,
-        avatarUrl: data.avatarUrl || getRandomAvatar(),
+        avatarUrl: getRandomAvatar(),
       };
       addTeamMember(newMember);
       toast({
@@ -136,19 +132,6 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
                         ))}
                     </SelectContent>
                 </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="avatarUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Avatar URL (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="https://example.com/avatar.png" {...field} />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}
