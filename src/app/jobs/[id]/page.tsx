@@ -2,7 +2,7 @@
 
 import { useContext } from 'react';
 import { AppContext } from '@/components/app-provider';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,9 +12,11 @@ import type { Task } from '@/lib/types';
 import { format } from 'date-fns';
 import { QuoteForm } from '@/components/quotes/quote-form';
 
-export default function JobDetailsPage({ params }: { params: { id: string } }) {
+export default function JobDetailsPage() {
+  const params = useParams();
+  const id = params.id as string;
   const { jobs } = useContext(AppContext);
-  const job = jobs.find(j => j.id === params.id);
+  const job = jobs.find(j => j.id === id);
 
   if (!job) {
     notFound();
