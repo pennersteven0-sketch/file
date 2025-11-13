@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { CalendarPopover } from '@/components/quotes/calendar-popover';
 import { JobStatusBadge } from '@/components/jobs/job-status-badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
 const DetailRow = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => {
@@ -206,17 +207,27 @@ export default function JobDetailsPage() {
           <TaskParser initialTasks={initialTasks} />
 
           {job.quoteDetails && (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Quote Details</CardTitle>
-                    <CardDescription>
-                        Original quote {job.quoteDetails.quoteNumber} information.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                   <QuoteForm quote={job.quoteDetails} onQuoteUpdate={handleQuoteUpdate} />
-                </CardContent>
-            </Card>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="quote-details">
+                <Card>
+                  <AccordionTrigger className="w-full">
+                    <CardHeader className="flex-row items-center justify-between w-full pr-0">
+                      <div>
+                        <CardTitle>Quote Details</CardTitle>
+                        <CardDescription>
+                            Original quote {job.quoteDetails.quoteNumber} information.
+                        </CardDescription>
+                      </div>
+                    </CardHeader>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <CardContent>
+                      <QuoteForm quote={job.quoteDetails} onQuoteUpdate={handleQuoteUpdate} />
+                    </CardContent>
+                  </AccordionContent>
+                </Card>
+              </AccordionItem>
+            </Accordion>
           )}
 
         </div>
