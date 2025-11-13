@@ -127,7 +127,6 @@ export default function QuotesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Quote #</TableHead>
                 <TableHead>Client</TableHead>
                 <TableHead>Select Dates</TableHead>
                 <TableHead>Total</TableHead>
@@ -137,7 +136,6 @@ export default function QuotesPage() {
             <TableBody>
               {quotes.map(quote => (
                 <TableRow key={quote.id} onClick={() => handleEditQuote(quote)} className="cursor-pointer">
-                  <TableCell className="font-medium">{quote.quoteNumber}</TableCell>
                   <TableCell>{quote.client.name}</TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <CalendarPopover 
