@@ -63,3 +63,11 @@ export type Notification = {
   read: boolean;
   jobId?: string;
 };
+
+export type QuoteFormData = {
+  clientName?: string | null;
+  clientPhone?: string | null;
+  clientEmail?: string | null;
+  jobDetails?: string | null;
+  total: number;
+}

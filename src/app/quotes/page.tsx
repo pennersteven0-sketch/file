@@ -1,14 +1,24 @@
-import { quotes } from '@/lib/data';
+'use client';
+
+import { useContext } from 'react';
 import type { Quote } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Trash2, CheckCircle } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from '@/components/ui/sheet';
 import { QuoteForm } from '@/components/quotes/quote-form';
+import { AppContext } from '@/components/app-provider';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-function QuoteStatusBadge({ status }: { status: Quote['status'] }) {
+
+function QuoteStatusBadge({ status, onStatusChange, onDelete }: { status: Quote['status'], onStatusChange: (status: Quote['status']) => void, onDelete: () => void }) {
   const variant: { [key in Quote['status']]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
     'Draft': 'secondary',
     'Sent': 'default',
@@ -20,10 +30,28 @@ function QuoteStatusBadge({ status }: { status: Quote['status'] }) {
     'Sent': 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/50 dark:text-blue-300',
   }
 
-  return <Badge variant={variant[status]} className={bgClass[status]}>{status}</Badge>;
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Badge variant={variant[status]} className={`${bgClass[status]} cursor-pointer`}>{status}</Badge>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => onStatusChange('Accepted')}>
+          <CheckCircle className="mr-2 h-4 w-4" />
+          <span>Accepted</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onDelete} className="text-destructive">
+          <Trash2 className="mr-2 h-4 w-4" />
+          <span>Delete</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
 
 export default function QuotesPage() {
+  const { quotes, updateQuoteStatus, deleteQuote } = useContext(AppContext);
+
   return (
     <div className="space-y-6 pb-16 md:pb-0">
       <div className="flex justify-between items-center">
@@ -69,7 +97,11 @@ export default function QuotesPage() {
                   <TableCell>{quote.date.toLocaleDateString()}</TableCell>
                   <TableCell>${quote.total.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
-                    <QuoteStatusBadge status={quote.status} />
+                    <QuoteStatusBadge 
+                      status={quote.status}
+                      onStatusChange={(newStatus) => updateQuoteStatus(quote.id, newStatus)}
+                      onDelete={() => deleteQuote(quote.id)}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

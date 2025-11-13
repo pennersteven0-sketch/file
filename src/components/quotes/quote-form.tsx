@@ -18,8 +18,10 @@ import { PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { Card, CardContent } from '../ui/card';
-import { useMemo } from 'react';
+import { useMemo, useContext } from 'react';
 import { cn } from '@/lib/utils';
+import { AppContext } from '../app-provider';
+import { Client } from '@/lib/types';
 
 const slabSchema = z.object({
   width: z.coerce.number().positive().optional().nullable(),
@@ -108,6 +110,7 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 
 export function QuoteForm() {
   const { toast } = useToast();
+  const { addQuote, quotes } = useContext(AppContext);
   const form = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
     defaultValues: {
@@ -240,14 +243,35 @@ export function QuoteForm() {
       totalCostPerSqFt: moneyFormatter.format(totalCostPerSqFt),
       profitAmount: moneyFormatter.format(profitAmount),
       quoteTotal: moneyFormatter.format(quoteTotal),
+      rawTotal: quoteTotal
     };
   }, [watchedValues]);
 
   function onSubmit(data: QuoteFormValues) {
-    console.log({ ...data, calculations });
+    const newQuote = {
+      id: `quote-${Date.now()}`,
+      quoteNumber: `Q-${new Date().getFullYear()}-${String(quotes.length + 1).padStart(3, '0')}`,
+      client: {
+        id: `cli-${Date.now()}`,
+        name: data.clientName || 'N/A',
+        contactPerson: data.clientName || 'N/A',
+        phone: data.clientPhone || 'N/A',
+        email: data.clientEmail || 'N/A',
+      } as Client,
+      date: new Date(),
+      validUntil: new Date(new Date().setDate(new Date().getDate() + 30)),
+      items: [], // Simplified for now
+      subtotal: calculations.rawTotal,
+      tax: 0, // Simplified
+      total: calculations.rawTotal,
+      status: 'Draft' as const,
+    };
+    
+    addQuote(newQuote);
+
     toast({
       title: 'Quote Created',
-      description: 'The new quote has been successfully saved.',
+      description: 'The new quote has been successfully saved as a draft.',
     });
     form.reset();
   }
