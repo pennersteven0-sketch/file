@@ -1,14 +1,19 @@
-import { jobs } from '@/lib/data';
+'use client';
+
+import { useContext } from 'react';
+import { AppContext } from '@/components/app-provider';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { User, MapPin, Calendar, Clock, Mail, Phone, CheckCircle, Circle } from 'lucide-react';
+import { User, MapPin, Calendar, Clock, Mail, Phone } from 'lucide-react';
 import { TaskParser } from '@/components/jobs/task-parser';
 import type { Task } from '@/lib/types';
+import { format } from 'date-fns';
+import { QuoteForm } from '@/components/quotes/quote-form';
 
 export default function JobDetailsPage({ params }: { params: { id: string } }) {
+  const { jobs } = useContext(AppContext);
   const job = jobs.find(j => j.id === params.id);
 
   if (!job) {
@@ -34,10 +39,18 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
               <CardTitle>Job Details</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 text-sm">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                <strong>Date:</strong>
-                <span className="ml-2">{job.date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <div className="flex items-start">
+                <Calendar className="h-4 w-4 mr-2 mt-1 text-muted-foreground" />
+                <strong>Dates:</strong>
+                <div className="ml-2 flex flex-col">
+                  {job.dates.length > 0 ? (
+                    job.dates.map((date, index) => (
+                      <span key={index}>{format(date, 'PPP')}</span>
+                    ))
+                  ) : (
+                    <span>Not scheduled</span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center">
                 <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -50,6 +63,20 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
           </Card>
           
           <TaskParser initialTasks={initialTasks} jobDescription={job.description}/>
+
+          {job.quoteDetails && (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Quote Details</CardTitle>
+                    <CardDescription>
+                        Original quote {job.quoteDetails.quoteNumber} information.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                   <QuoteForm quote={job.quoteDetails} onFinished={() => {}} />
+                </CardContent>
+            </Card>
+          )}
 
         </div>
 
@@ -75,29 +102,31 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Assigned Team</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {job.team.map(member => (
-                <div key={member.id} className="flex items-center gap-3">
-                  <Image
-                    src={member.avatarUrl}
-                    alt={member.name}
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                    data-ai-hint="person face"
-                  />
-                  <div>
-                    <p className="font-semibold">{member.name}</p>
-                    <p className="text-xs text-muted-foreground">{member.role}</p>
+          {job.team.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Assigned Team</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {job.team.map(member => (
+                  <div key={member.id} className="flex items-center gap-3">
+                    <Image
+                      src={member.avatarUrl}
+                      alt={member.name}
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                      data-ai-hint="person face"
+                    />
+                    <div>
+                      <p className="font-semibold">{member.name}</p>
+                      <p className="text-xs text-muted-foreground">{member.role}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                ))}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

@@ -24,7 +24,7 @@ export const jobs: Job[] = [
     id: 'job-1',
     title: 'Driveway for Lot 24',
     location: '123 Maple St, Springfield',
-    date: new Date(new Date().setDate(new Date().getDate())),
+    dates: [new Date(new Date().setDate(new Date().getDate()))],
     client: clients[0],
     team: [teamMembers[0], teamMembers[1], teamMembers[2]],
     tasks: [
@@ -40,7 +40,7 @@ export const jobs: Job[] = [
     id: 'job-2',
     title: 'Patio for Summit Homes Model',
     location: '456 Oak Ave, Shelbyville',
-    date: new Date(new Date().setDate(new Date().getDate() + 3)),
+    dates: [new Date(new Date().setDate(new Date().getDate() + 3))],
     client: clients[1],
     team: [teamMembers[0], teamMembers[3], teamMembers[4]],
     tasks: [
@@ -55,7 +55,7 @@ export const jobs: Job[] = [
     id: 'job-3',
     title: 'Foundation for Oakridge Spec Home',
     location: '789 Pine Ln, Capital City',
-    date: new Date(new Date().setDate(new Date().getDate() + 7)),
+    dates: [new Date(new Date().setDate(new Date().getDate() + 7))],
     client: clients[0],
     team: [teamMembers[0], teamMembers[1], teamMembers[2], teamMembers[4]],
     tasks: [],
@@ -66,7 +66,7 @@ export const jobs: Job[] = [
     id: 'job-4',
     title: 'Sidewalk Repair',
     location: 'Main St & 2nd Ave Intersection',
-    date: new Date(new Date().setDate(new Date().getDate() - 10)),
+    dates: [new Date(new Date().setDate(new Date().getDate() - 10))],
     client: { id: 'cli-3', name: 'City of Springfield', contactPerson: 'Tom Public', phone: '555-0011', email: 'publicworks@springfield.gov'},
     team: [teamMembers[1], teamMembers[2]],
     tasks: [

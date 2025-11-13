@@ -1,28 +1,32 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import Link from 'next/link';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { jobs } from '@/lib/data';
+import { AppContext } from '@/components/app-provider';
 import { format } from 'date-fns';
 import { MapPin, ArrowRight } from 'lucide-react';
+import type { Job } from '@/lib/types';
 
 export default function DashboardPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const { jobs } = useContext(AppContext);
 
   const jobsByDate = useMemo(() => {
-    const groups: { [key: string]: typeof jobs } = {};
+    const groups: { [key: string]: Job[] } = {};
     jobs.forEach(job => {
-      const jobDate = format(job.date, 'yyyy-MM-dd');
-      if (!groups[jobDate]) {
-        groups[jobDate] = [];
-      }
-      groups[jobDate].push(job);
+      job.dates.forEach(jobDate => {
+        const dateStr = format(jobDate, 'yyyy-MM-dd');
+        if (!groups[dateStr]) {
+          groups[dateStr] = [];
+        }
+        groups[dateStr].push(job);
+      });
     });
     return groups;
-  }, []);
+  }, [jobs]);
 
   const selectedJobs = useMemo(() => {
     if (!date) return [];

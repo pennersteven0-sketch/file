@@ -19,7 +19,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { Card, CardContent } from '../ui/card';
 import { useMemo, useContext, useEffect } from 'react';
-import { cn } from '@/lib/utils';
 import { AppContext } from '../app-provider';
 import { Client, Quote } from '@/lib/types';
 
@@ -360,175 +359,180 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
 
     onFinished?.();
   }
+  
+  const isJobDetailsView = !!(quote && onFinished === undefined);
+
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
-        <SectionTitle>Client Information</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField control={form.control} name="clientName" render={({ field }) => (
-                <FormItem><FormLabel>Client Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-            )}/>
-            <FormField control={form.control} name="clientPhone" render={({ field }) => (
-                <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="555-123-4567" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-            )}/>
-        </div>
-        <FormField control={form.control} name="clientEmail" render={({ field }) => (
-            <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input placeholder="john.doe@example.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-        )}/>
-        <FormField control={form.control} name="jobDetails" render={({ field }) => (
-            <FormItem><FormLabel>Job Details</FormLabel><FormControl><Textarea placeholder="Briefly describe the job" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-        )}/>
+        <fieldset disabled={isJobDetailsView} className="space-y-6">
+          <SectionTitle>Client Information</SectionTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField control={form.control} name="clientName" render={({ field }) => (
+                  <FormItem><FormLabel>Client Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+              )}/>
+              <FormField control={form.control} name="clientPhone" render={({ field }) => (
+                  <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="555-123-4567" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+              )}/>
+          </div>
+          <FormField control={form.control} name="clientEmail" render={({ field }) => (
+              <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input placeholder="john.doe@example.com" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+          )}/>
+          <FormField control={form.control} name="jobDetails" render={({ field }) => (
+              <FormItem><FormLabel>Job Details</FormLabel><FormControl><Textarea placeholder="Briefly describe the job" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+          )}/>
 
-        <Separator />
-        
-        <SectionTitle>Measurements</SectionTitle>
-        
-        {/* Slabs */}
-        <div className="space-y-4">
-            <h4 className="font-medium">Slabs</h4>
-            {slabFields.map((field, index) => (
-                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <FormField control={form.control} name={`slabs.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (ft)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`slabs.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (ft)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`slabs.${index}.thickness`} render={({ field }) => (<FormItem><FormLabel>Thickness (in)</FormLabel><FormControl><Input type="number" placeholder="4" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`slabs.${index}.rebarSpacing`} render={({ field }) => (<FormItem><FormLabel>Rebar Spacing (in)</FormLabel><FormControl><Input type="number" placeholder="18" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: 4, rebarSpacing: 18 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
-        </div>
+          <Separator />
+          
+          <SectionTitle>Measurements</SectionTitle>
+          
+          {/* Slabs */}
+          <div className="space-y-4">
+              <h4 className="font-medium">Slabs</h4>
+              {slabFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <FormField control={form.control} name={`slabs.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (ft)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`slabs.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (ft)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`slabs.${index}.thickness`} render={({ field }) => (<FormItem><FormLabel>Thickness (in)</FormLabel><FormControl><Input type="number" placeholder="4" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`slabs.${index}.rebarSpacing`} render={({ field }) => (<FormItem><FormLabel>Rebar Spacing (in)</FormLabel><FormControl><Input type="number" placeholder="18" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                      </div>
+                      {!isJobDetailsView && <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>}
+                  </div>
+              ))}
+              {!isJobDetailsView && <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: 4, rebarSpacing: 18 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>}
+          </div>
 
-        {/* Footings */}
-        <div className="space-y-4">
-            <h4 className="font-medium">Footings</h4>
-            {footingFields.map((field, index) => (
-                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <FormField control={form.control} name={`footings.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (ft)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`footings.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`footings.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`footings.${index}.rebarRows`} render={({ field }) => (<FormItem><FormLabel>Rebar Rows</FormLabel><FormControl><Input type="number" placeholder="2" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeFooting(index)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: null, width: null, depth: null, rebarRows: 2 })}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>
-        </div>
+          {/* Footings */}
+          <div className="space-y-4">
+              <h4 className="font-medium">Footings</h4>
+              {footingFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <FormField control={form.control} name={`footings.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (ft)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`footings.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`footings.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`footings.${index}.rebarRows`} render={({ field }) => (<FormItem><FormLabel>Rebar Rows</FormLabel><FormControl><Input type="number" placeholder="2" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                      </div>
+                      {!isJobDetailsView && <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeFooting(index)}><Trash2 className="h-4 w-4" /></Button>}
+                  </div>
+              ))}
+              {!isJobDetailsView && <Button type="button" variant="outline" size="sm" onClick={() => appendFooting({ length: null, width: null, depth: null, rebarRows: 2 })}><PlusCircle className="mr-2 h-4 w-4" />Add Footing</Button>}
+          </div>
 
-        {/* Round Pier Holes */}
-        <div className="space-y-4">
-            <h4 className="font-medium">Round Pier Holes</h4>
-            {roundPierHoleFields.map((field, index) => (
-                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`roundPierHoles.${index}.count`} render={({ field }) => (<FormItem><FormLabel>No. of holes</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`roundPierHoles.${index}.diameter`} render={({ field }) => (<FormItem><FormLabel>Diameter (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`roundPierHoles.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeRoundPierHole(index)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendRoundPierHole({ count: null, diameter: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Round Pier Hole</Button>
-        </div>
+          {/* Round Pier Holes */}
+          <div className="space-y-4">
+              <h4 className="font-medium">Round Pier Holes</h4>
+              {roundPierHoleFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <FormField control={form.control} name={`roundPierHoles.${index}.count`} render={({ field }) => (<FormItem><FormLabel>No. of holes</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`roundPierHoles.${index}.diameter`} render={({ field }) => (<FormItem><FormLabel>Diameter (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`roundPierHoles.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                      </div>
+                      {!isJobDetailsView && <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeRoundPierHole(index)}><Trash2 className="h-4 w-4" /></Button>}
+                  </div>
+              ))}
+              {!isJobDetailsView && <Button type="button" variant="outline" size="sm" onClick={() => appendRoundPierHole({ count: null, diameter: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Round Pier Hole</Button>}
+          </div>
 
-        {/* Square Pier Holes */}
-        <div className="space-y-4">
-            <h4 className="font-medium">Square Pier Holes</h4>
-            {squarePierHoleFields.map((field, index) => (
-                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <FormField control={form.control} name={`squarePierHoles.${index}.count`} render={({ field }) => (<FormItem><FormLabel>No. of holes</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`squarePierHoles.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`squarePierHoles.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`squarePierHoles.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSquarePierHole(index)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendSquarePierHole({ count: null, length: null, width: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Square Pier Hole</Button>
-        </div>
+          {/* Square Pier Holes */}
+          <div className="space-y-4">
+              <h4 className="font-medium">Square Pier Holes</h4>
+              {squarePierHoleFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <FormField control={form.control} name={`squarePierHoles.${index}.count`} render={({ field }) => (<FormItem><FormLabel>No. of holes</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`squarePierHoles.${index}.length`} render={({ field }) => (<FormItem><FormLabel>Length (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`squarePierHoles.${index}.width`} render={({ field }) => (<FormItem><FormLabel>Width (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`squarePierHoles.${index}.depth`} render={({ field }) => (<FormItem><FormLabel>Depth (in)</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                      </div>
+                      {!isJobDetailsView && <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSquarePierHole(index)}><Trash2 className="h-4 w-4" /></Button>}
+                  </div>
+              ))}
+              {!isJobDetailsView && <Button type="button" variant="outline" size="sm" onClick={() => appendSquarePierHole({ count: null, length: null, width: null, depth: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Square Pier Hole</Button>}
+          </div>
 
-        <Separator />
-        
-        <SectionTitle>Costing</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-             <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" placeholder="200" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/20ft stick</FormLabel><FormControl><Input type="number" placeholder="5" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.travelPrice" render={({ field }) => (<FormItem><FormLabel>Travel Price/mile</FormLabel><FormControl><Input type="number" placeholder="2.5" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-        </div>
+          <Separator />
+          
+          <SectionTitle>Costing</SectionTitle>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" placeholder="200" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+              <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/20ft stick</FormLabel><FormControl><Input type="number" placeholder="5" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+              <FormField control={form.control} name="costs.travelPrice" render={({ field }) => (<FormItem><FormLabel>Travel Price/mile</FormLabel><FormControl><Input type="number" placeholder="2.5" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+          </div>
 
-        <Separator />
+          <Separator />
 
-        <SectionTitle>Labor</SectionTitle>
-        <div className="space-y-4">
-            {laborFields.map((field, index) => (
-                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`labor.${index}.employees`} render={({ field }) => (<FormItem><FormLabel>No. of employees</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`labor.${index}.days`} render={({ field }) => (<FormItem><FormLabel>No. of days</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`labor.${index}.costPerDay`} render={({ field }) => (<FormItem><FormLabel>Daily Rate per Employee</FormLabel><FormControl><Input type="number" placeholder="200" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeLabor(index)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendLabor({ employees: null, days: null, costPerDay: 200 })}><PlusCircle className="mr-2 h-4 w-4" />Add Labor</Button>
-        </div>
-        
-        <Separator />
-        
-        <SectionTitle>Equipment Costs</SectionTitle>
-        <div className="space-y-4">
-            {equipmentFields.map((field, index) => (
-                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`equipment.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Equipment Name</FormLabel><FormControl><Input placeholder="e.g. Concrete Pump" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`equipment.${index}.daysUsed`} render={({ field }) => (<FormItem><FormLabel>Days Used</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`equipment.${index}.pricePerDay`} render={({ field }) => (<FormItem><FormLabel>Price Per Day</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeEquipment(index)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendEquipment({ name: '', daysUsed: null, pricePerDay: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Equipment</Button>
-        </div>
+          <SectionTitle>Labor</SectionTitle>
+          <div className="space-y-4">
+              {laborFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <FormField control={form.control} name={`labor.${index}.employees`} render={({ field }) => (<FormItem><FormLabel>No. of employees</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`labor.${index}.days`} render={({ field }) => (<FormItem><FormLabel>No. of days</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`labor.${index}.costPerDay`} render={({ field }) => (<FormItem><FormLabel>Daily Rate per Employee</FormLabel><FormControl><Input type="number" placeholder="200" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                      </div>
+                      {!isJobDetailsView && <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeLabor(index)}><Trash2 className="h-4 w-4" /></Button>}
+                  </div>
+              ))}
+              {!isJobDetailsView && <Button type="button" variant="outline" size="sm" onClick={() => appendLabor({ employees: null, days: null, costPerDay: 200 })}><PlusCircle className="mr-2 h-4 w-4" />Add Labor</Button>}
+          </div>
+          
+          <Separator />
+          
+          <SectionTitle>Equipment Costs</SectionTitle>
+          <div className="space-y-4">
+              {equipmentFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <FormField control={form.control} name={`equipment.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Equipment Name</FormLabel><FormControl><Input placeholder="e.g. Concrete Pump" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`equipment.${index}.daysUsed`} render={({ field }) => (<FormItem><FormLabel>Days Used</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`equipment.${index}.pricePerDay`} render={({ field }) => (<FormItem><FormLabel>Price Per Day</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                      </div>
+                      {!isJobDetailsView && <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeEquipment(index)}><Trash2 className="h-4 w-4" /></Button>}
+                  </div>
+              ))}
+              {!isJobDetailsView && <Button type="button" variant="outline" size="sm" onClick={() => appendEquipment({ name: '', daysUsed: null, pricePerDay: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Equipment</Button>}
+          </div>
 
-        <Separator />
+          <Separator />
 
-        <SectionTitle>Travel Costs</SectionTitle>
-        <div className="space-y-4">
-            {travelCostFields.map((field, index) => (
-                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`travelCosts.${index}.trips`} render={({ field }) => (<FormItem><FormLabel>No. of trips</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`travelCosts.${index}.trucks`} render={({ field }) => (<FormItem><FormLabel>No. of trucks</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`travelCosts.${index}.miles`} render={({ field }) => (<FormItem><FormLabel>Miles per trip</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeTravelCost(index)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendTravelCost({ trips: null, trucks: null, miles: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Trip</Button>
-        </div>
-        
-        <Separator />
-        
-        <SectionTitle>Other Expenses</SectionTitle>
-        <div className="space-y-4">
-            {otherExpenseFields.map((field, index) => (
-                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name={`otherExpenses.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Expense Name</FormLabel><FormControl><Input placeholder="e.g. Permit Fee" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`otherExpenses.${index}.cost`} render={({ field }) => (<FormItem><FormLabel>Cost</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`otherExpenses.${index}.costPerSqFt`} render={({ field }) => (<FormItem><FormLabel>Cost Per Sq. Ft.</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeOtherExpense(index)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendOtherExpense({ name: '', cost: null, costPerSqFt: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Expense</Button>
-        </div>
-        
-        <Separator />
+          <SectionTitle>Travel Costs</SectionTitle>
+          <div className="space-y-4">
+              {travelCostFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <FormField control={form.control} name={`travelCosts.${index}.trips`} render={({ field }) => (<FormItem><FormLabel>No. of trips</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`travelCosts.${index}.trucks`} render={({ field }) => (<FormItem><FormLabel>No. of trucks</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`travelCosts.${index}.miles`} render={({ field }) => (<FormItem><FormLabel>Miles per trip</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                      </div>
+                      {!isJobDetailsView && <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeTravelCost(index)}><Trash2 className="h-4 w-4" /></Button>}
+                  </div>
+              ))}
+              {!isJobDetailsView && <Button type="button" variant="outline" size="sm" onClick={() => appendTravelCost({ trips: null, trucks: null, miles: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Trip</Button>}
+          </div>
+          
+          <Separator />
+          
+          <SectionTitle>Other Expenses</SectionTitle>
+          <div className="space-y-4">
+              {otherExpenseFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <FormField control={form.control} name={`otherExpenses.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Expense Name</FormLabel><FormControl><Input placeholder="e.g. Permit Fee" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`otherExpenses.${index}.cost`} render={({ field }) => (<FormItem><FormLabel>Cost</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                          <FormField control={form.control} name={`otherExpenses.${index}.costPerSqFt`} render={({ field }) => (<FormItem><FormLabel>Cost Per Sq. Ft.</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                      </div>
+                      {!isJobDetailsView && <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeOtherExpense(index)}><Trash2 className="h-4 w-4" /></Button>}
+                  </div>
+              ))}
+              {!isJobDetailsView && <Button type="button" variant="outline" size="sm" onClick={() => appendOtherExpense({ name: '', cost: null, costPerSqFt: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Expense</Button>}
+          </div>
+          
+          <Separator />
+        </fieldset>
 
         <SectionTitle>Estimated Costs</SectionTitle>
         <Card>
@@ -566,12 +570,14 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
         </Card>
 
         <Separator />
-
-        <SectionTitle>Profit</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <FormField control={form.control} name="profit.fixedAmount" render={({ field }) => (<FormItem><FormLabel>Fixed Profit Amount</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="profit.perSquareFoot" render={({ field }) => (<FormItem><FormLabel>Profit Per Sq. Ft.</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-        </div>
+        
+        <fieldset disabled={isJobDetailsView} className="space-y-6">
+          <SectionTitle>Profit</SectionTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField control={form.control} name="profit.fixedAmount" render={({ field }) => (<FormItem><FormLabel>Fixed Profit Amount</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+              <FormField control={form.control} name="profit.perSquareFoot" render={({ field }) => (<FormItem><FormLabel>Profit Per Sq. Ft.</FormLabel><FormControl><Input type="number" placeholder="0" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+          </div>
+        </fieldset>
         
         <Separator />
 
@@ -585,8 +591,7 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
             </CardContent>
         </Card>
 
-
-        <Button type="submit" className="w-full">{quote ? 'Update Quote' : 'Create Quote'}</Button>
+        {!isJobDetailsView && <Button type="submit" className="w-full">{quote ? 'Update Quote' : 'Create Quote'}</Button>}
       </form>
     </Form>
   );

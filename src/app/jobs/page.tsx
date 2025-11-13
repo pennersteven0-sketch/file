@@ -1,10 +1,14 @@
+'use client';
+
+import { useContext } from 'react';
 import Link from 'next/link';
-import { jobs } from '@/lib/data';
+import { AppContext } from '@/components/app-provider';
 import type { Job } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar, MapPin, Users } from 'lucide-react';
+import { format } from 'date-fns';
 
 const JobCard = ({ job }: { job: Job }) => (
   <Card className="hover:shadow-lg transition-shadow duration-300">
@@ -18,7 +22,13 @@ const JobCard = ({ job }: { job: Job }) => (
       </div>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Calendar className="h-4 w-4" />
-        <span>{job.date.toLocaleDateString()}</span>
+        <span>
+            {job.dates.length > 0
+              ? job.dates.length === 1 
+                ? format(job.dates[0], 'PPP')
+                : `${job.dates.length} dates`
+              : 'Not scheduled'}
+        </span>
       </div>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Users className="h-4 w-4" />
@@ -39,7 +49,12 @@ const JobCard = ({ job }: { job: Job }) => (
 );
 
 export default function JobsPage() {
-  const sortedJobs = [...jobs].sort((a, b) => b.date.getTime() - a.date.getTime());
+  const { jobs } = useContext(AppContext);
+  const sortedJobs = [...jobs].sort((a, b) => {
+    const aDate = a.dates.length > 0 ? a.dates[0].getTime() : 0;
+    const bDate = b.dates.length > 0 ? b.dates[0].getTime() : 0;
+    return bDate - aDate;
+  });
 
   return (
     <div className="space-y-6 pb-16 md:pb-0">

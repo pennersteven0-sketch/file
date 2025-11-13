@@ -25,12 +25,13 @@ export type Job = {
   id: string;
   title: string;
   location: string;
-  date: Date;
+  dates: Date[]; // Changed from date to dates
   client: Client;
   team: TeamMember[];
   tasks: Task[];
   status: JobStatus;
   description: string;
+  quoteDetails?: Quote; // Optional field to link back to the quote
 };
 
 export type QuoteStatus = 'Draft' | 'Sent' | 'Accepted' | 'Rejected';
