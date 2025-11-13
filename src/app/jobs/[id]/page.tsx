@@ -14,6 +14,7 @@ import { QuoteForm } from '@/components/quotes/quote-form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { CalendarPopover } from '@/components/quotes/calendar-popover';
 
 
 const DetailRow = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => {
@@ -83,6 +84,11 @@ export default function JobDetailsPage() {
     }
   }
 
+  const handleDateChange = (newDates: Date[]) => {
+    const updatedJob = { ...job, dates: newDates };
+    updateJob(updatedJob);
+  };
+
   const initialTasks: Task[] = job.tasks.length > 0 ? job.tasks : [];
   const { quoteDetails } = job;
   const formData = quoteDetails?.formData;
@@ -108,13 +114,10 @@ export default function JobDetailsPage() {
             </CardHeader>
             <CardContent className="grid gap-4">
                 <DetailRow icon={Calendar} label="Dates">
-                    {job.dates.length > 0 ? (
-                        job.dates.map((date, index) => (
-                        <span key={index}>{format(date, 'PPP')}</span>
-                        ))
-                    ) : (
-                        <span>Not scheduled</span>
-                    )}
+                    <CalendarPopover 
+                        dates={job.dates}
+                        onDatesChange={handleDateChange}
+                    />
                 </DetailRow>
 
                 <DetailRow icon={MapPin} label="Location">
