@@ -42,7 +42,6 @@ const costSchema = z.object({
   concretePrice: z.coerce.number().min(0).optional().nullable(),
   rebarPrice: z.coerce.number().min(0).optional().nullable(),
   laborPrice: z.coerce.number().min(0).optional().nullable(),
-  taxRate: z.coerce.number().min(0).max(100).optional().nullable(),
 });
 
 const quoteFormSchema = z.object({
@@ -78,7 +77,6 @@ export function QuoteForm() {
         concretePrice: 200, // $/cubic yard
         rebarPrice: 1.5, // $/linear foot
         laborPrice: 5, // $/square foot
-        taxRate: 8, // percentage
       },
     },
   });
@@ -121,9 +119,7 @@ export function QuoteForm() {
     const laborCost = totalSlabSqFt * (costs?.laborPrice || 0);
     
     // Totals
-    const subtotal = concreteCost + rebarCost + laborCost;
-    const tax = subtotal * ((costs?.taxRate || 0) / 100);
-    const total = subtotal + tax;
+    const total = concreteCost + rebarCost + laborCost;
 
     return {
       totalSlabSqFt: totalSlabSqFt.toFixed(2),
@@ -132,8 +128,6 @@ export function QuoteForm() {
       totalRebar: totalRebar.toFixed(2),
       rebarCost: rebarCost.toFixed(2),
       laborCost: laborCost.toFixed(2),
-      subtotal: subtotal.toFixed(2),
-      tax: tax.toFixed(2),
       total: total.toFixed(2),
     };
   }, [watchedValues]);
@@ -215,11 +209,10 @@ export function QuoteForm() {
         <Separator />
         
         <SectionTitle>Costing</SectionTitle>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
              <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
              <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/ft</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
              <FormField control={form.control} name="costs.laborPrice" render={({ field }) => (<FormItem><FormLabel>Labor Price/ft²</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.taxRate" render={({ field }) => (<FormItem><FormLabel>Tax Rate (%)</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
         </div>
 
         <Separator />
@@ -247,8 +240,6 @@ export function QuoteForm() {
                     <p>Rebar: <span className="font-medium">${calculations.rebarCost}</span></p>
                     <p>Labor: <span className="font-medium">${calculations.laborCost}</span></p>
                     <Separator className="my-2"/>
-                    <p className="font-semibold">Subtotal: <span className="font-bold">${calculations.subtotal}</span></p>
-                    <p className="text-sm">Tax ({watchedValues.costs?.taxRate || 0}%): <span className="font-medium">${calculations.tax}</span></p>
                     <p className="text-xl font-bold">Total: <span className="text-primary">${calculations.total}</span></p>
                 </div>
             </CardContent>
