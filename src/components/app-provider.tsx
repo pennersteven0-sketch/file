@@ -2,13 +2,14 @@
 
 import React, { createContext, useState } from 'react';
 import type { Quote, Job, TeamMember, Client } from '@/lib/types';
-import { quotes as initialQuotes, jobs as initialJobs, teamMembers } from '@/lib/data';
+import { quotes as initialQuotes, jobs as initialJobs, teamMembers as initialTeamMembers } from '@/lib/data';
 
 type AppContextType = {
   isSidebarOpen: boolean;
   setOpen: (isOpen: boolean) => void;
   quotes: Quote[];
   jobs: Job[];
+  teamMembers: TeamMember[];
   addQuote: (quote: Quote) => void;
   updateQuote: (quote: Quote) => void;
   updateQuoteStatus: (quoteId: string, status: Quote['status']) => void;
@@ -16,6 +17,9 @@ type AppContextType = {
   updateQuoteDates: (quoteId: string, dates: Date[]) => void;
   addJob: (job: Job) => void;
   updateJob: (job: Job) => void;
+  addTeamMember: (member: TeamMember) => void;
+  updateTeamMember: (member: TeamMember) => void;
+  deleteTeamMember: (memberId: string) => void;
 };
 
 export const AppContext = createContext<AppContextType>({
@@ -23,6 +27,7 @@ export const AppContext = createContext<AppContextType>({
   setOpen: () => {},
   quotes: [],
   jobs: [],
+  teamMembers: [],
   addQuote: () => {},
   updateQuote: () => {},
   updateQuoteStatus: () => {},
@@ -30,12 +35,16 @@ export const AppContext = createContext<AppContextType>({
   updateQuoteDates: () => {},
   addJob: () => {},
   updateJob: () => {},
+  addTeamMember: () => {},
+  updateTeamMember: () => {},
+  deleteTeamMember: () => {},
 });
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setOpen] = useState(false);
   const [quotes, setQuotes] = useState<Quote[]>(initialQuotes);
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(initialTeamMembers);
 
   const addJob = (job: Job) => {
     setJobs(prevJobs => [job, ...prevJobs]);
@@ -103,10 +112,44 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       prevQuotes.map(q => (q.id === quoteId ? { ...q, dates } : q))
     );
   };
+  
+  const addTeamMember = (member: TeamMember) => {
+    setTeamMembers(prev => [member, ...prev]);
+  };
+
+  const updateTeamMember = (updatedMember: TeamMember) => {
+    setTeamMembers(prev =>
+      prev.map(m => (m.id === updatedMember.id ? updatedMember : m))
+    );
+    // Also update this member in any job they are assigned to
+    setJobs(prevJobs =>
+      prevJobs.map(job => ({
+        ...job,
+        team: job.team.map(tm => (tm.id === updatedMember.id ? updatedMember : tm)),
+      }))
+    );
+  };
+
+  const deleteTeamMember = (memberId: string) => {
+    setTeamMembers(prev => prev.filter(m => m.id !== memberId));
+     // Also remove this member from any job they are assigned to
+     setJobs(prevJobs =>
+      prevJobs.map(job => ({
+        ...job,
+        team: job.team.filter(tm => tm.id !== memberId),
+      }))
+    );
+  };
 
 
   return (
-    <AppContext.Provider value={{ isSidebarOpen, setOpen, quotes, jobs, addQuote, updateQuote, updateQuoteStatus, deleteQuote, updateQuoteDates, addJob, updateJob }}>
+    <AppContext.Provider value={{ 
+        isSidebarOpen, setOpen, 
+        quotes, jobs, teamMembers,
+        addQuote, updateQuote, updateQuoteStatus, deleteQuote, updateQuoteDates, 
+        addJob, updateJob,
+        addTeamMember, updateTeamMember, deleteTeamMember
+      }}>
       {children}
     </AppContext.Provider>
   );

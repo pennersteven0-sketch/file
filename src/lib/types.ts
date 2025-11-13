@@ -6,10 +6,12 @@ export type Client = {
   email: string;
 };
 
+export type TeamMemberRole = 'Foreman' | 'Laborer' | 'Finisher' | 'Driver';
+
 export type TeamMember = {
   id:string;
   name: string;
-  role: 'Foreman' | 'Laborer' | 'Finisher' | 'Driver';
+  role: TeamMemberRole;
   avatarUrl: string;
 };
 
