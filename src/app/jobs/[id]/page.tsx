@@ -3,7 +3,6 @@
 import { useContext, useState } from 'react';
 import { AppContext } from '@/components/app-provider';
 import { notFound, useParams } from 'next/navigation';
-import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { User, MapPin, Calendar, Clock, Mail, Phone, Ruler, PlusCircle, Edit, Trash2, Users } from 'lucide-react';
 import { TaskParser } from '@/components/jobs/task-parser';
@@ -19,6 +18,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {Timestamp} from 'firebase/firestore';
 
 
 const DetailRow = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => {
@@ -41,11 +41,14 @@ export default function JobDetailsPage() {
   const [isEditingLocation, setIsEditingLocation] = useState(false);
   const [editingLocation, setEditingLocation] = useState('');
   const [isTeamDialogOpen, setTeamDialogOpen] = useState(false);
-  const [selectedTeamMembers, setSelectedTeamMembers] = useState<TeamMember[]>(job?.team || []);
-
+  
   if (!job) {
-    notFound();
+    // Data might be loading, or not found. 
+    // You can show a loading indicator or a proper not found page.
+    return <div>Loading job details or job not found...</div>;
   }
+  
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState<TeamMember[]>(job.team || []);
   
   const handleStartEditingLocation = () => {
     setEditingLocation(job.location);
@@ -130,6 +133,8 @@ export default function JobDetailsPage() {
   const totalRoundPiers = formData?.roundPierHoles?.reduce((acc, p) => acc + (p.count || 0), 0) || 0;
   const totalSquarePiers = formData?.squarePierHoles?.reduce((acc, p) => acc + (p.count || 0), 0) || 0;
 
+  const jobDates = Array.isArray(job.dates) ? job.dates.map(d => (d instanceof Timestamp ? d.toDate() : d)) : [];
+
 
   return (
     <div className="space-y-6 pb-16 md:pb-0">
@@ -147,7 +152,7 @@ export default function JobDetailsPage() {
             <CardContent className="grid gap-4">
                 <DetailRow icon={Calendar} label="Dates">
                     <CalendarPopover 
-                        dates={job.dates}
+                        dates={jobDates}
                         onDatesChange={handleDateChange}
                     />
                 </DetailRow>
@@ -344,5 +349,3 @@ export default function JobDetailsPage() {
     </div>
   );
 }
-
-    

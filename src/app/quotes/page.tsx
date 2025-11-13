@@ -28,6 +28,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { CalendarPopover } from '@/components/quotes/calendar-popover';
+import { Timestamp } from 'firebase/firestore';
 
 
 function QuoteStatusBadge({ status, onStatusChange, onDelete }: { status: Quote['status'], onStatusChange: (status: Quote['status']) => void, onDelete: () => void }) {
@@ -134,25 +135,28 @@ export default function QuotesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {quotes.map(quote => (
-                <TableRow key={quote.id} onClick={() => handleEditQuote(quote)} className="cursor-pointer">
-                  <TableCell>{quote.client.name}</TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <CalendarPopover 
-                      dates={quote.dates}
-                      onDatesChange={(newDates) => updateQuoteDates(quote.id, newDates)}
-                    />
-                  </TableCell>
-                  <TableCell>${quote.total.toFixed(2)}</TableCell>
-                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                    <QuoteStatusBadge 
-                      status={quote.status}
-                      onStatusChange={(newStatus) => updateQuoteStatus(quote.id, newStatus)}
-                      onDelete={() => deleteQuote(quote.id)}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+              {quotes.map(quote => {
+                const quoteDates = Array.isArray(quote.dates) ? quote.dates.map(d => (d instanceof Timestamp ? d.toDate() : d)) : [];
+                return (
+                  <TableRow key={quote.id} onClick={() => handleEditQuote(quote)} className="cursor-pointer">
+                    <TableCell>{quote.client.name}</TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <CalendarPopover 
+                        dates={quoteDates}
+                        onDatesChange={(newDates) => updateQuoteDates(quote.id, newDates)}
+                      />
+                    </TableCell>
+                    <TableCell>${quote.total.toFixed(2)}</TableCell>
+                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                      <QuoteStatusBadge 
+                        status={quote.status}
+                        onStatusChange={(newStatus) => updateQuoteStatus(quote.id, newStatus)}
+                        onDelete={() => deleteQuote(quote.id)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>

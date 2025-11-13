@@ -10,56 +10,63 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar, MapPin, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Timestamp } from 'firebase/firestore';
 
-const JobCard = ({ job }: { job: Job }) => (
-  <Card className="hover:shadow-lg transition-shadow duration-300">
-    <CardHeader>
-      <CardTitle className="text-lg font-bold tracking-tight">{job.title}</CardTitle>
-    </CardHeader>
-    <CardContent className="grid gap-4">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <MapPin className="h-4 w-4" />
-        <span>{job.location}</span>
-      </div>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Calendar className="h-4 w-4" />
-        <span>
-            {job.dates.length > 0
-              ? job.dates.length === 1 
-                ? format(job.dates[0], 'PPP')
-                : `${job.dates.length} dates`
-              : 'Not scheduled'}
-        </span>
-      </div>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Users className="h-4 w-4" />
-        <span>{job.team.length} Team Members</span>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Badge 
-          variant={job.status === 'Completed' || job.status === 'Completed and Paid' ? 'secondary' : 'default'} 
-          className={cn({
-            'bg-accent text-accent-foreground': job.status === 'In Progress',
-            'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-300': job.status === 'Completed and Paid',
-          })}
-        >
-          {job.status}
-        </Badge>
-      </div>
-      <Button asChild variant="outline" size="sm" className="mt-2 w-full">
-        <Link href={`/jobs/${job.id}`}>
-          View Details <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
-      </Button>
-    </CardContent>
-  </Card>
-);
+const JobCard = ({ job }: { job: Job }) => {
+  const jobDates = Array.isArray(job.dates) ? job.dates.map(d => (d instanceof Timestamp ? d.toDate() : d)) : [];
+  
+  return (
+    <Card className="hover:shadow-lg transition-shadow duration-300">
+      <CardHeader>
+        <CardTitle className="text-lg font-bold tracking-tight">{job.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <MapPin className="h-4 w-4" />
+          <span>{job.location}</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="h-4 w-4" />
+          <span>
+              {jobDates.length > 0
+                ? jobDates.length === 1 
+                  ? format(jobDates[0], 'PPP')
+                  : `${jobDates.length} dates`
+                : 'Not scheduled'}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Users className="h-4 w-4" />
+          <span>{job.team.length} Team Members</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Badge 
+            variant={job.status === 'Completed' || job.status === 'Completed and Paid' ? 'secondary' : 'default'} 
+            className={cn({
+              'bg-accent text-accent-foreground': job.status === 'In Progress',
+              'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-300': job.status === 'Completed and Paid',
+            })}
+          >
+            {job.status}
+          </Badge>
+        </div>
+        <Button asChild variant="outline" size="sm" className="mt-2 w-full">
+          <Link href={`/jobs/${job.id}`}>
+            View Details <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function JobsPage() {
   const { jobs } = useContext(AppContext);
   const sortedJobs = [...jobs].sort((a, b) => {
-    const aDate = a.dates.length > 0 ? a.dates[0].getTime() : 0;
-    const bDate = b.dates.length > 0 ? b.dates[0].getTime() : 0;
+    const aDates = Array.isArray(a.dates) ? a.dates.map(d => (d instanceof Timestamp ? d.toDate() : d)) : [];
+    const bDates = Array.isArray(b.dates) ? b.dates.map(d => (d instanceof Timestamp ? d.toDate() : d)) : [];
+    const aDate = aDates.length > 0 ? aDates[0].getTime() : 0;
+    const bDate = bDates.length > 0 ? bDates[0].getTime() : 0;
     return bDate - aDate;
   });
 

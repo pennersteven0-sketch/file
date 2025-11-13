@@ -5,6 +5,7 @@ import { DesktopSidebar } from '@/components/layout/desktop-sidebar';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { Header } from '@/components/layout/header';
 import { AppProvider } from '@/components/app-provider';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
   title: 'ConexPro',
@@ -24,19 +25,21 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <AppProvider>
-          <div className="flex min-h-screen w-full bg-background">
-            <DesktopSidebar />
-            <div className="flex flex-1 flex-col overflow-hidden">
-              <Header />
-              <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-                <div className="mx-auto max-w-4xl">{children}</div>
-              </main>
+        <FirebaseClientProvider>
+          <AppProvider>
+            <div className="flex min-h-screen w-full bg-background">
+              <DesktopSidebar />
+              <div className="flex flex-1 flex-col overflow-hidden">
+                <Header />
+                <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+                  <div className="mx-auto max-w-4xl">{children}</div>
+                </main>
+              </div>
+              <MobileNav />
             </div>
-            <MobileNav />
-          </div>
-          <Toaster />
-        </AppProvider>
+            <Toaster />
+          </AppProvider>
+        </FirebaseClientProvider>
       </body>
     </html>
   );

@@ -6,16 +6,20 @@ import { Button } from '@/components/ui/button';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
-import { jobs } from '@/lib/data';
+import { AppContext } from '@/components/app-provider';
 import { cn } from '@/lib/utils';
+import { useContext } from 'react';
+import { Timestamp } from 'firebase/firestore';
 
 export function CalendarPopover({ dates, onDatesChange }: { dates: Date[], onDatesChange: (dates: Date[]) => void }) {
   const [isOpen, setOpen] = useState(false);
+  const { jobs } = useContext(AppContext);
 
   const jobsByDate = useMemo(() => {
     const groups: { [key: string]: typeof jobs } = {};
     jobs.forEach(job => {
-      job.dates.forEach(date => {
+      const jobDates = Array.isArray(job.dates) ? job.dates.map(d => (d instanceof Timestamp ? d.toDate() : d)) : [];
+      jobDates.forEach(date => {
         const jobDate = format(date, 'yyyy-MM-dd');
         if (!groups[jobDate]) {
           groups[jobDate] = [];
@@ -24,7 +28,7 @@ export function CalendarPopover({ dates, onDatesChange }: { dates: Date[], onDat
       });
     });
     return groups;
-  }, []);
+  }, [jobs]);
 
   const handleSelect = (selectedDates: Date[] | undefined) => {
     if (selectedDates) {

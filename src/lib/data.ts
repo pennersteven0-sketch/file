@@ -1,5 +1,7 @@
 import type { Job, Quote, Client, TeamMember, Notification } from './types';
-import { PlaceHolderImages } from './placeholder-images';
+
+// This file now contains only empty arrays. 
+// The data is now fetched from Firebase in AppProvider.
 
 export const clients: Client[] = [];
 

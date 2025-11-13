@@ -9,6 +9,7 @@ import { AppContext } from '@/components/app-provider';
 import { format } from 'date-fns';
 import { MapPin, ArrowRight } from 'lucide-react';
 import type { Job } from '@/lib/types';
+import { Timestamp } from 'firebase/firestore';
 
 export default function DashboardPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -17,7 +18,8 @@ export default function DashboardPage() {
   const jobsByDate = useMemo(() => {
     const groups: { [key: string]: Job[] } = {};
     jobs.forEach(job => {
-      job.dates.forEach(jobDate => {
+      const jobDates = Array.isArray(job.dates) ? job.dates.map(d => (d instanceof Timestamp ? d.toDate() : d)) : [];
+      jobDates.forEach(jobDate => {
         const dateStr = format(jobDate, 'yyyy-MM-dd');
         if (!groups[dateStr]) {
           groups[dateStr] = [];
