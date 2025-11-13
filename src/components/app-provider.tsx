@@ -15,6 +15,7 @@ type AppContextType = {
   deleteQuote: (quoteId: string) => void;
   updateQuoteDates: (quoteId: string, dates: Date[]) => void;
   addJob: (job: Job) => void;
+  updateJob: (job: Job) => void;
 };
 
 export const AppContext = createContext<AppContextType>({
@@ -28,6 +29,7 @@ export const AppContext = createContext<AppContextType>({
   deleteQuote: () => {},
   updateQuoteDates: () => {},
   addJob: () => {},
+  updateJob: () => {},
 });
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
@@ -37,6 +39,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const addJob = (job: Job) => {
     setJobs(prevJobs => [job, ...prevJobs]);
+  };
+  
+  const updateJob = (updatedJob: Job) => {
+    setJobs(prevJobs =>
+      prevJobs.map(j => (j.id === updatedJob.id ? updatedJob : j))
+    );
   };
 
   const addQuote = (quote: Quote) => {
@@ -87,7 +95,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
 
   return (
-    <AppContext.Provider value={{ isSidebarOpen, setOpen, quotes, jobs, addQuote, updateQuote, updateQuoteStatus, deleteQuote, updateQuoteDates, addJob }}>
+    <AppContext.Provider value={{ isSidebarOpen, setOpen, quotes, jobs, addQuote, updateQuote, updateQuoteStatus, deleteQuote, updateQuoteDates, addJob, updateJob }}>
       {children}
     </AppContext.Provider>
   );

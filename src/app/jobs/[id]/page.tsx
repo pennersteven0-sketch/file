@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { User, MapPin, Calendar, Clock, Mail, Phone, Ruler } from 'lucide-react';
 import { TaskParser } from '@/components/jobs/task-parser';
-import type { Task } from '@/lib/types';
+import type { Task, Job } from '@/lib/types';
 import { format } from 'date-fns';
 import { QuoteForm } from '@/components/quotes/quote-form';
 
@@ -26,11 +26,22 @@ const DetailRow = ({ icon, label, children }: { icon: React.ElementType, label: 
 export default function JobDetailsPage() {
   const params = useParams();
   const id = params.id as string;
-  const { jobs } = useContext(AppContext);
+  const { jobs, updateJob } = useContext(AppContext);
   const job = jobs.find(j => j.id === id);
 
   if (!job) {
     notFound();
+  }
+
+  const handleQuoteUpdate = (updatedQuoteDetails: Job['quoteDetails']) => {
+    if (updatedQuoteDetails) {
+        const updatedJob: Job = {
+            ...job,
+            quoteDetails: updatedQuoteDetails,
+            title: updatedQuoteDetails.formData?.jobDetails || job.title,
+        };
+        updateJob(updatedJob);
+    }
   }
 
   const initialTasks: Task[] = job.tasks.length > 0 ? job.tasks : [];
@@ -122,7 +133,7 @@ export default function JobDetailsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                   <QuoteForm quote={job.quoteDetails} onFinished={() => {}} />
+                   <QuoteForm quote={job.quoteDetails} onQuoteUpdate={handleQuoteUpdate} />
                 </CardContent>
             </Card>
           )}

@@ -110,10 +110,11 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 interface QuoteFormProps {
   quote?: Quote | null;
   onFinished?: () => void;
+  onQuoteUpdate?: (quote: Quote) => void;
 }
 
 
-export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
+export function QuoteForm({ quote, onFinished, onQuoteUpdate }: QuoteFormProps) {
   const { toast } = useToast();
   const { addQuote, updateQuote, quotes } = useContext(AppContext);
   
@@ -310,7 +311,7 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
 
     if (quote) {
       // Update existing quote
-      const updatedQuote: Quote = {
+      const updatedQuoteData: Quote = {
         ...quote,
         client: {
           ...quote.client,
@@ -323,7 +324,9 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
         formData: formDataForSaving,
         items: [], // This might need to be derived from form data if used
       };
-      updateQuote(updatedQuote);
+      updateQuote(updatedQuoteData);
+      onQuoteUpdate?.(updatedQuoteData); // Inform parent about the update
+
       toast({
         title: 'Quote Updated',
         description: `Quote ${quote.quoteNumber} has been successfully updated.`,
@@ -360,7 +363,7 @@ export function QuoteForm({ quote, onFinished }: QuoteFormProps) {
     onFinished?.();
   }
   
-  const isJobDetailsView = !!(quote && onFinished === undefined);
+  const isJobDetailsView = !!(quote && !onFinished && !onQuoteUpdate);
 
 
   return (
