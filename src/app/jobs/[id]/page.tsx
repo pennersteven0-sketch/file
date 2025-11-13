@@ -122,7 +122,7 @@ export default function JobDetailsPage() {
             </CardContent>
           </Card>
           
-          <TaskParser initialTasks={initialTasks} jobDescription={job.description}/>
+          <TaskParser initialTasks={initialTasks} />
 
           {job.quoteDetails && (
             <Card>
