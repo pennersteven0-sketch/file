@@ -9,6 +9,7 @@ export type Client = {
 export type TeamMember = {
   id:string;
   name: string;
+  phone: string;
   avatarUrl: string;
 };
 

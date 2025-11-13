@@ -21,6 +21,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const teamMemberFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
+  phone: z.string().optional(),
 });
 
 type TeamMemberFormValues = z.infer<typeof teamMemberFormSchema>;
@@ -38,6 +39,7 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
     resolver: zodResolver(teamMemberFormSchema),
     defaultValues: {
       name: '',
+      phone: '',
     },
   });
 
@@ -45,10 +47,12 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
     if (member) {
       form.reset({
         name: member.name,
+        phone: member.phone,
       });
     } else {
       form.reset({
         name: '',
+        phone: '',
       });
     }
   }, [member, form]);
@@ -65,6 +69,7 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
       const updatedMemberData: TeamMember = {
         ...member,
         name: data.name,
+        phone: data.phone || '',
       };
       updateTeamMember(updatedMemberData);
       toast({
@@ -77,6 +82,7 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
       const newMember: TeamMember = {
         id: `tm-${Date.now()}`,
         name: data.name,
+        phone: data.phone || '',
         avatarUrl: getRandomAvatar(),
       };
       addTeamMember(newMember);
@@ -100,6 +106,19 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
               <FormLabel>Full Name</FormLabel>
               <FormControl>
                 <Input placeholder="John Doe" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <Input placeholder="555-123-4567" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

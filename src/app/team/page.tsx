@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { AppContext } from '@/components/app-provider';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, MoreVertical, Edit, Trash2, Phone } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { TeamMemberForm } from '@/components/team/team-member-form';
 import type { TeamMember } from '@/lib/types';
@@ -73,6 +73,12 @@ export default function TeamPage() {
                 data-ai-hint="person face"
               />
               <p className="font-semibold text-lg">{member.name}</p>
+              {member.phone && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                  <Phone className="h-4 w-4" />
+                  <a href={`tel:${member.phone}`} className="hover:text-primary">{member.phone}</a>
+                </div>
+              )}
             </CardContent>
             <div className="absolute top-2 right-2">
                  <AlertDialog>
