@@ -423,7 +423,7 @@ export function QuoteForm() {
                     <p>Travel: <span className="font-medium">${calculations.travelCost}</span></p>
                     <p>Other Expenses: <span className="font-medium">${calculations.otherExpensesCost}</span></p>
                     <Separator className="my-2"/>
-                    <p className="text-xl font-bold">Total: <span className="text-primary">${calculations.total}</span></p>
+                    <p className="text-xl font-bold">Total Costs: <span className="text-primary">${calculations.total}</span></p>
                 </div>
             </CardContent>
         </Card>
