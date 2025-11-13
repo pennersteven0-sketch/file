@@ -232,7 +232,7 @@ export function QuoteForm() {
                     <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeSlab(index)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: null, rebarSpacing: 18 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => appendSlab({ length: null, width: null, thickness: 4, rebarSpacing: 18 })}><PlusCircle className="mr-2 h-4 w-4" />Add Slab</Button>
         </div>
 
         {/* Footings */}
