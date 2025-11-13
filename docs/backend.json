@@ -1,0 +1,285 @@
+{
+  "entities": {
+    "Job": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Job",
+      "type": "object",
+      "description": "Represents a job or task within the ConexPro application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Job entity."
+        },
+        "clientId": {
+          "type": "string",
+          "description": "Reference to the Client associated with this job. (Relationship: Client 1:N Job)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title or name of the job."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the job requirements and tasks."
+        },
+        "location": {
+          "type": "string",
+          "description": "Location or address where the job is to be performed."
+        },
+        "scheduledDate": {
+          "type": "string",
+          "description": "Date and time the job is scheduled to begin.",
+          "format": "date-time"
+        },
+        "teamMemberIds": {
+          "type": "array",
+          "description": "References to TeamMembers assigned to this job. (Relationship: TeamMember N:N Job)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "quoteId": {
+          "type": "string",
+          "description": "Reference to the Quote associated with this job. (Relationship: Quote 1:1 Job)"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the job (e.g., Scheduled, In Progress, Completed)."
+        }
+      },
+      "required": [
+        "id",
+        "clientId",
+        "title",
+        "description",
+        "location",
+        "scheduledDate",
+        "teamMemberIds",
+        "quoteId",
+        "status"
+      ]
+    },
+    "Quote": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Quote",
+      "type": "object",
+      "description": "Represents a quote generated for a potential job.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Quote entity."
+        },
+        "clientId": {
+          "type": "string",
+          "description": "Reference to the Client the quote is for. (Relationship: Client 1:N Quote)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the work included in the quote."
+        },
+        "materialsCost": {
+          "type": "number",
+          "description": "Estimated cost of materials for the job."
+        },
+        "laborCost": {
+          "type": "number",
+          "description": "Estimated cost of labor for the job."
+        },
+        "totalCost": {
+          "type": "number",
+          "description": "Total estimated cost of the job (materials + labor)."
+        },
+        "dateCreated": {
+          "type": "string",
+          "description": "Date when the quote was created.",
+          "format": "date-time"
+        },
+        "expiryDate": {
+          "type": "string",
+          "description": "Date when the quote expires.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the quote (e.g., Draft, Sent, Accepted, Rejected)."
+        }
+      },
+      "required": [
+        "id",
+        "clientId",
+        "description",
+        "materialsCost",
+        "laborCost",
+        "totalCost",
+        "dateCreated",
+        "expiryDate",
+        "status"
+      ]
+    },
+    "TeamMember": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TeamMember",
+      "type": "object",
+      "description": "Represents a team member within the ConexPro application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the TeamMember entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the team member."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the team member."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the team member.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number of the team member."
+        },
+        "role": {
+          "type": "string",
+          "description": "Role or job title of the team member."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "phone",
+        "role"
+      ]
+    },
+    "Client": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Client",
+      "type": "object",
+      "description": "Represents a client or customer within the ConexPro application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Client entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the client."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the client."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the client.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number of the client."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the client."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "phone",
+        "address"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/clients/{clientId}",
+        "definition": {
+          "entityName": "Client",
+          "schema": {
+            "$ref": "#/backend/entities/Client"
+          },
+          "description": "Stores client information. Each document represents a single client.",
+          "params": [
+            {
+              "name": "clientId",
+              "description": "Unique identifier for the client."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/clients/{clientId}/quotes/{quoteId}",
+        "definition": {
+          "entityName": "Quote",
+          "schema": {
+            "$ref": "#/backend/entities/Quote"
+          },
+          "description": "Stores quotes associated with a client. Each document represents a single quote for the client. Authorization is based on the parent client ID.",
+          "params": [
+            {
+              "name": "clientId",
+              "description": "Unique identifier for the client."
+            },
+            {
+              "name": "quoteId",
+              "description": "Unique identifier for the quote."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/clients/{clientId}/jobs/{jobId}",
+        "definition": {
+          "entityName": "Job",
+          "schema": {
+            "$ref": "#/backend/entities/Job"
+          },
+          "description": "Stores jobs associated with a client. Includes denormalized 'teamMemberIds' array for authorization independence. Allows team members listed in `teamMemberIds` to access the job. Authorization is also based on the parent client ID.",
+          "params": [
+            {
+              "name": "clientId",
+              "description": "Unique identifier for the client."
+            },
+            {
+              "name": "jobId",
+              "description": "Unique identifier for the job."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/teamMembers/{teamMemberId}",
+        "definition": {
+          "entityName": "TeamMember",
+          "schema": {
+            "$ref": "#/backend/entities/TeamMember"
+          },
+          "description": "Stores team member information. Each document represents a single team member.",
+          "params": [
+            {
+              "name": "teamMemberId",
+              "description": "Unique identifier for the team member."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support the ConexPro application, focusing on job scheduling, quote generation, and team collaboration. The structure prioritizes authorization independence and efficient data retrieval. We'll use path-based ownership for `clients` and their associated data (quotes and jobs).  Team member data will be stored in a top-level collection for easy management. Denormalization will be used to maintain authorization independence, specifically for job access by team members. A `teamMemberIds` array is included in the Job document, serving both as data and for authorization purposes within security rules. This design enables efficient `list` operations and avoids complex `get()` calls within security rules, improving scalability and security. All collections are designed with homogeneous security postures in mind. The design enables secure list operations (QAPs) by segregating data and using the `teamMemberIds` array for job-level authorization.  Using the `teamMemberIds` array allows the security rules to verify a user's membership without needing to perform complex or expensive `get()` operations on other documents, directly addressing Authorization Independence."
+  }
+}

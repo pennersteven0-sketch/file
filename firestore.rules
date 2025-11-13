@@ -1,0 +1,127 @@
+/**
+ * @file Firebase Security Rules for ConexPro Firestore database.
+ *
+ * @Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for Clients and their associated Quotes and Jobs.
+ * Team Members have read access to Jobs they are assigned to.
+ *
+ * @Data Structure:
+ * - /clients/{clientId}: Stores client information, accessible only by the client themselves.
+ * - /clients/{clientId}/quotes/{quoteId}: Stores quotes associated with a client, accessible only by the client.
+ * - /clients/{clientId}/jobs/{jobId}: Stores jobs associated with a client. Accessible to the client and assigned team members.
+ * - /teamMembers/{teamMemberId}: Stores team member information, accessible only by the team member themselves.
+ *
+ * @Key Security Decisions:
+ * - No user listing is allowed for any collection.
+ * - The `teamMemberIds` array on the Job document is used for authorization, allowing team members to access jobs they are assigned to.
+ * - All write operations are restricted to authenticated users.
+ *
+ * @Denormalization for Authorization:
+ * - Jobs contain a `teamMemberIds` array to avoid requiring security rules to fetch team member information from a separate collection.
+ *   This allows for efficient and secure job access control.
+ *
+ * @Structural Segregation:
+ * - Client-specific data (quotes and jobs) are stored under the /clients/{clientId} path to maintain ownership and access control.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description: Controls access to client documents. Only the client can read and write their own document.
+     * @path: /clients/{clientId}
+     * @allow: Client with ID 'user_abc' can read their own profile (get), Client with ID 'user_abc' can update their own profile (update).
+     * @deny: User with ID 'user_def' cannot read or write client data for client 'user_abc'.
+     * @principle: Enforces document ownership for writes.
+     */
+    match /clients/{clientId} {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      allow get: if isSignedIn() && isOwner(clientId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(clientId);
+      allow update: if isSignedIn() && isOwner(clientId) && resource.data.id == clientId;
+      allow delete: if isSignedIn() && isOwner(clientId) && resource != null;
+    }
+
+    /**
+     * @description: Controls access to quote documents associated with a client. Only the client can read and write their own quotes.
+     * @path: /clients/{clientId}/quotes/{quoteId}
+     * @allow: Client with ID 'user_abc' can create a quote under their client document.
+     * @deny: User with ID 'user_def' cannot create a quote under client 'user_abc''s document.
+     * @principle: Enforces document ownership for writes.
+     */
+    match /clients/{clientId}/quotes/{quoteId} {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      allow get: if isSignedIn() && isOwner(clientId);
+      allow list: if isSignedIn() && isOwner(clientId);
+      allow create: if isSignedIn() && isOwner(clientId);
+      allow update: if isSignedIn() && isOwner(clientId) && resource != null;
+      allow delete: if isSignedIn() && isOwner(clientId) && resource != null;
+    }
+
+    /**
+     * @description: Controls access to job documents associated with a client.
+     *               The client and assigned team members can read the job. Only the client can write.
+     * @path: /clients/{clientId}/jobs/{jobId}
+     * @allow: Client with ID 'user_abc' can create a job under their client document, Team member with ID 'user_def' can read the job if 'user_def' is in the 'teamMemberIds' array.
+     * @deny: User with ID 'user_def' cannot create a job under client 'user_abc''s document, Team member with ID 'user_ghi' cannot read the job if 'user_ghi' is not in the 'teamMemberIds' array.
+     * @principle: Enforces document ownership for writes, allows read access for assigned team members.
+     */
+    match /clients/{clientId}/jobs/{jobId} {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isTeamMember(teamMemberIds) {
+        return request.auth.uid in teamMemberIds;
+      }
+
+      allow get: if isSignedIn() && (isOwner(clientId) || isTeamMember(resource.data.teamMemberIds));
+      allow list: if isSignedIn() && isOwner(clientId);
+      allow create: if isSignedIn() && isOwner(clientId);
+      allow update: if isSignedIn() && isOwner(clientId) && resource != null;
+      allow delete: if isSignedIn() && isOwner(clientId) && resource != null;
+    }
+
+    /**
+     * @description: Controls access to team member documents. Only the team member can read and write their own document.
+     * @path: /teamMembers/{teamMemberId}
+     * @allow: Team member with ID 'user_abc' can read their own profile (get), Team member with ID 'user_abc' can update their own profile (update).
+     * @deny: User with ID 'user_def' cannot read or write team member data for team member 'user_abc'.
+     * @principle: Enforces document ownership for writes.
+     */
+    match /teamMembers/{teamMemberId} {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      allow get: if isSignedIn() && isOwner(teamMemberId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(teamMemberId);
+      allow update: if isSignedIn() && isOwner(teamMemberId) && resource.data.id == teamMemberId && resource != null;
+      allow delete: if isSignedIn() && isOwner(teamMemberId) && resource != null;
+    }
+  }
+}
