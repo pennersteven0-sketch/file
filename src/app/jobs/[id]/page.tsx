@@ -271,7 +271,6 @@ export default function JobDetailsPage() {
                     />
                     <div>
                       <p className="font-semibold">{member.name}</p>
-                      <p className="text-xs text-muted-foreground">{member.role}</p>
                     </div>
                   </div>
                 ))}

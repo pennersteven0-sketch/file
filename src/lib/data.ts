@@ -12,11 +12,11 @@ export const clients: Client[] = [
 ];
 
 export const teamMembers: TeamMember[] = [
-  { id: 'tm-1', name: 'Mike Johnson', role: 'Foreman', avatarUrl: getAvatar('avatar1') },
-  { id: 'tm-2', name: 'Carlos Gomez', role: 'Finisher', avatarUrl: getAvatar('avatar2') },
-  { id: 'tm-3', name: 'David Chen', role: 'Laborer', avatarUrl: getAvatar('avatar3') },
-  { id: 'tm-4', name: 'Alex Rodriguez', role: 'Driver', avatarUrl: getAvatar('avatar4') },
-  { id: 'tm-5', name: 'Sam Wilson', role: 'Laborer', avatarUrl: getAvatar('avatar5') },
+  { id: 'tm-1', name: 'Mike Johnson', avatarUrl: getAvatar('avatar1') },
+  { id: 'tm-2', name: 'Carlos Gomez', avatarUrl: getAvatar('avatar2') },
+  { id: 'tm-3', name: 'David Chen', avatarUrl: getAvatar('avatar3') },
+  { id: 'tm-4', name: 'Alex Rodriguez', avatarUrl: getAvatar('avatar4') },
+  { id: 'tm-5', name: 'Sam Wilson', avatarUrl: getAvatar('avatar5') },
 ];
 
 export const jobs: Job[] = [

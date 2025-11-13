@@ -13,16 +13,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useContext, useEffect } from 'react';
 import { AppContext } from '../app-provider';
-import { TeamMember, TeamMemberRole } from '@/lib/types';
+import { TeamMember } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const teamMemberFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
-  role: z.enum(['Foreman', 'Laborer', 'Finisher', 'Driver']),
 });
 
 type TeamMemberFormValues = z.infer<typeof teamMemberFormSchema>;
@@ -32,8 +30,6 @@ interface TeamMemberFormProps {
   onFinished?: () => void;
 }
 
-const roles: TeamMemberRole[] = ['Foreman', 'Finisher', 'Laborer', 'Driver'];
-
 export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
   const { toast } = useToast();
   const { addTeamMember, updateTeamMember } = useContext(AppContext);
@@ -42,7 +38,6 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
     resolver: zodResolver(teamMemberFormSchema),
     defaultValues: {
       name: '',
-      role: 'Laborer',
     },
   });
 
@@ -50,12 +45,10 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
     if (member) {
       form.reset({
         name: member.name,
-        role: member.role,
       });
     } else {
       form.reset({
         name: '',
-        role: 'Laborer',
       });
     }
   }, [member, form]);
@@ -72,7 +65,6 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
       const updatedMemberData: TeamMember = {
         ...member,
         name: data.name,
-        role: data.role,
       };
       updateTeamMember(updatedMemberData);
       toast({
@@ -85,7 +77,6 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
       const newMember: TeamMember = {
         id: `tm-${Date.now()}`,
         name: data.name,
-        role: data.role,
         avatarUrl: getRandomAvatar(),
       };
       addTeamMember(newMember);
@@ -110,28 +101,6 @@ export function TeamMemberForm({ member, onFinished }: TeamMemberFormProps) {
               <FormControl>
                 <Input placeholder="John Doe" {...field} />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="role"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Role</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select a role" />
-                        </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                        {roles.map(role => (
-                            <SelectItem key={role} value={role}>{role}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
               <FormMessage />
             </FormItem>
           )}

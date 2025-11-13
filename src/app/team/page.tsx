@@ -73,7 +73,6 @@ export default function TeamPage() {
                 data-ai-hint="person face"
               />
               <p className="font-semibold text-lg">{member.name}</p>
-              <p className="text-sm text-muted-foreground">{member.role}</p>
             </CardContent>
             <div className="absolute top-2 right-2">
                  <AlertDialog>
