@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 
 export function TaskParser({ initialTasks }: { initialTasks: Task[] }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [newTaskDescription, setNewTaskDescription] = useState('');
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
   const editInputRef = useRef<HTMLInputElement>(null);
@@ -30,17 +29,16 @@ export function TaskParser({ initialTasks }: { initialTasks: Task[] }) {
     );
   };
 
-  const handleAddTask = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newTaskDescription.trim()) {
-      const newTask: Task = {
-        id: `task-${Date.now()}`,
-        description: newTaskDescription.trim(),
-        completed: false,
-      };
-      setTasks([...tasks, newTask]);
-      setNewTaskDescription('');
-    }
+  const handleAddTask = () => {
+    const newTask: Task = {
+      id: `task-${Date.now()}`,
+      description: '',
+      completed: false,
+    };
+    setTasks([...tasks, newTask]);
+    // Immediately start editing the new task
+    setEditingTaskId(newTask.id);
+    setEditingText('');
   };
 
   const handleDeleteTask = (id: string) => {
@@ -59,7 +57,11 @@ export function TaskParser({ initialTasks }: { initialTasks: Task[] }) {
 
   const handleUpdateTask = (id: string) => {
     if (editingText.trim() === '') {
-      handleDeleteTask(id);
+      // If a new task is left blank, remove it. Otherwise, keep original text.
+      const originalTask = tasks.find(t => t.id === id);
+      if (originalTask && originalTask.description === '') {
+        handleDeleteTask(id);
+      }
     } else {
       setTasks(tasks.map(task => 
         task.id === id ? { ...task, description: editingText.trim() } : task
@@ -73,6 +75,11 @@ export function TaskParser({ initialTasks }: { initialTasks: Task[] }) {
       handleUpdateTask(id);
     } else if (e.key === 'Escape') {
       handleCancelEditing();
+      // If escaping a new blank task, remove it
+      const originalTask = tasks.find(t => t.id === id);
+      if(originalTask && originalTask.description === '') {
+        handleDeleteTask(id);
+      }
     }
   };
   
@@ -85,17 +92,6 @@ export function TaskParser({ initialTasks }: { initialTasks: Task[] }) {
         <CardDescription>A list of tasks for this job.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <form onSubmit={handleAddTask} className="flex gap-2">
-          <Input 
-            placeholder="Add a new task..."
-            value={newTaskDescription}
-            onChange={(e) => setNewTaskDescription(e.target.value)}
-          />
-          <Button type="submit" size="icon">
-            <PlusCircle className="h-4 w-4" />
-          </Button>
-        </form>
-
         {tasks.length > 0 ? (
           <div className="space-y-2">
              <div className="w-full bg-muted rounded-full h-2.5">
@@ -121,6 +117,7 @@ export function TaskParser({ initialTasks }: { initialTasks: Task[] }) {
                       onBlur={() => handleUpdateTask(task.id)}
                       onKeyDown={(e) => handleEditKeyDown(e, task.id)}
                       className="h-8"
+                      placeholder="Enter task description..."
                     />
                   ) : (
                     <>
@@ -150,6 +147,12 @@ export function TaskParser({ initialTasks }: { initialTasks: Task[] }) {
         ) : (
             <p className="text-sm text-muted-foreground pt-4 text-center">No tasks have been added for this job yet.</p>
         )}
+        <div className="pt-4">
+            <Button type="button" variant="outline" size="sm" onClick={handleAddTask}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create Task
+            </Button>
+        </div>
       </CardContent>
     </Card>
   );
