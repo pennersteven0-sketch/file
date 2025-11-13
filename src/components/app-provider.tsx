@@ -55,6 +55,17 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setQuotes(prevQuotes =>
       prevQuotes.map(q => (q.id === updatedQuote.id ? updatedQuote : q))
     );
+    
+    // If the quote is part of a job, update the job too.
+    const jobToUpdate = jobs.find(j => j.quoteDetails?.id === updatedQuote.id);
+    if (jobToUpdate) {
+        const updatedJob: Job = {
+            ...jobToUpdate,
+            quoteDetails: updatedQuote,
+            title: updatedQuote.formData?.jobDetails || jobToUpdate.title,
+        };
+        updateJob(updatedJob);
+    }
   };
   
   const updateQuoteStatus = (quoteId: string, status: Quote['status']) => {
