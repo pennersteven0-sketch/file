@@ -6,11 +6,22 @@ import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, MapPin, Calendar, Clock, Mail, Phone } from 'lucide-react';
+import { User, MapPin, Calendar, Clock, Mail, Phone, Ruler } from 'lucide-react';
 import { TaskParser } from '@/components/jobs/task-parser';
 import type { Task } from '@/lib/types';
 import { format } from 'date-fns';
 import { QuoteForm } from '@/components/quotes/quote-form';
+
+const DetailRow = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => {
+    const Icon = icon;
+    return (
+        <div className="flex items-start">
+            <Icon className="h-4 w-4 mr-2 mt-1 flex-shrink-0 text-muted-foreground" />
+            <strong className="w-24">{label}:</strong>
+            <div className="ml-2 flex flex-col">{children}</div>
+        </div>
+    );
+};
 
 export default function JobDetailsPage() {
   const params = useParams();
@@ -23,6 +34,14 @@ export default function JobDetailsPage() {
   }
 
   const initialTasks: Task[] = job.tasks.length > 0 ? job.tasks : [];
+  const { quoteDetails } = job;
+  const formData = quoteDetails?.formData;
+
+  const totalSlabs = formData?.slabs?.length || 0;
+  const totalFootings = formData?.footings?.length || 0;
+  const totalRoundPiers = formData?.roundPierHoles?.reduce((acc, p) => acc + (p.count || 0), 0) || 0;
+  const totalSquarePiers = formData?.squarePierHoles?.reduce((acc, p) => acc + (p.count || 0), 0) || 0;
+
 
   return (
     <div className="space-y-6 pb-16 md:pb-0">
@@ -41,26 +60,54 @@ export default function JobDetailsPage() {
               <CardTitle>Job Details</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 text-sm">
-              <div className="flex items-start">
-                <Calendar className="h-4 w-4 mr-2 mt-1 text-muted-foreground" />
-                <strong>Dates:</strong>
-                <div className="ml-2 flex flex-col">
-                  {job.dates.length > 0 ? (
-                    job.dates.map((date, index) => (
-                      <span key={index}>{format(date, 'PPP')}</span>
-                    ))
-                  ) : (
-                    <span>Not scheduled</span>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                <strong>Status:</strong>
-                <Badge variant={job.status === 'Completed' ? 'secondary' : 'default'} className="ml-2">
-                  {job.status}
-                </Badge>
-              </div>
+                <DetailRow icon={Calendar} label="Dates">
+                    {job.dates.length > 0 ? (
+                        job.dates.map((date, index) => (
+                        <span key={index}>{format(date, 'PPP')}</span>
+                        ))
+                    ) : (
+                        <span>Not scheduled</span>
+                    )}
+                </DetailRow>
+
+                <DetailRow icon={Clock} label="Status">
+                    <Badge variant={job.status === 'Completed' ? 'secondary' : 'default'} className="ml-2">
+                        {job.status}
+                    </Badge>
+                </DetailRow>
+                
+                {formData && (
+                    <>
+                         {totalSlabs > 0 && (
+                            <DetailRow icon={Ruler} label="Slabs">
+                                {formData.slabs?.map((slab, i) => (
+                                    <span key={`slab-${i}`}>{slab.length}ft x {slab.width}ft @ {slab.thickness}in thick, {slab.rebarSpacing}in rebar spacing</span>
+                                ))}
+                            </DetailRow>
+                         )}
+                         {totalFootings > 0 && (
+                            <DetailRow icon={Ruler} label="Footings">
+                                {formData.footings?.map((footing, i) => (
+                                    <span key={`footing-${i}`}>{footing.length}ft x {footing.width}in x {footing.depth}in, {footing.rebarRows} rebar rows</span>
+                                ))}
+                            </DetailRow>
+                         )}
+                         {totalRoundPiers > 0 && (
+                            <DetailRow icon={Ruler} label="Round Piers">
+                                {formData.roundPierHoles?.map((pier, i) => (
+                                    <span key={`rpier-${i}`}>{pier.count} holes @ {pier.diameter}in diameter, {pier.depth}in deep</span>
+                                ))}
+                            </DetailRow>
+                         )}
+                         {totalSquarePiers > 0 && (
+                             <DetailRow icon={Ruler} label="Square Piers">
+                                {formData.squarePierHoles?.map((pier, i) => (
+                                    <span key={`spier-${i}`}>{pier.count} holes @ {pier.length}in x {pier.width}in, {pier.depth}in deep</span>
+                                ))}
+                            </DetailRow>
+                         )}
+                    </>
+                )}
             </CardContent>
           </Card>
           
