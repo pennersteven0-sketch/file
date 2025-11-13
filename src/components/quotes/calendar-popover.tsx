@@ -15,11 +15,13 @@ export function CalendarPopover({ dates, onDatesChange }: { dates: Date[], onDat
   const jobsByDate = useMemo(() => {
     const groups: { [key: string]: typeof jobs } = {};
     jobs.forEach(job => {
-      const jobDate = format(job.date, 'yyyy-MM-dd');
-      if (!groups[jobDate]) {
-        groups[jobDate] = [];
-      }
-      groups[jobDate].push(job);
+      job.dates.forEach(date => {
+        const jobDate = format(date, 'yyyy-MM-dd');
+        if (!groups[jobDate]) {
+          groups[jobDate] = [];
+        }
+        groups[jobDate].push(job);
+      });
     });
     return groups;
   }, []);
