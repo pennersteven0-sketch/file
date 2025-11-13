@@ -102,7 +102,7 @@ export function QuoteForm() {
       labor: [],
       costs: {
         concretePrice: 200, // $/cubic yard
-        rebarPrice: 20, // $/stick
+        rebarPrice: 5, // $/stick
         travelPrice: 2.5, // $/mile
       },
     },
@@ -290,7 +290,7 @@ export function QuoteForm() {
         <SectionTitle>Costing</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
              <FormField control={form.control} name="costs.concretePrice" render={({ field }) => (<FormItem><FormLabel>Concrete Price/yd³</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
-             <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/stick</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
+             <FormField control={form.control} name="costs.rebarPrice" render={({ field }) => (<FormItem><FormLabel>Rebar Price/20ft stick</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
              <FormField control={form.control} name="costs.travelPrice" render={({ field }) => (<FormItem><FormLabel>Travel Price/mile</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl></FormItem>)}/>
         </div>
 
