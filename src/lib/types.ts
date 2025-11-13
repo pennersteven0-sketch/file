@@ -19,7 +19,7 @@ export type Task = {
   completed: boolean;
 };
 
-export type JobStatus = 'Scheduled' | 'In Progress' | 'Completed' | 'On Hold';
+export type JobStatus = 'Scheduled' | 'In Progress' | 'Completed' | 'On Hold' | 'Completed and Paid';
 
 export type Job = {
   id: string;

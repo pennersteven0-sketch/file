@@ -5,16 +5,16 @@ import { AppContext } from '@/components/app-provider';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { User, MapPin, Calendar, Clock, Mail, Phone, Ruler, PlusCircle, Edit } from 'lucide-react';
 import { TaskParser } from '@/components/jobs/task-parser';
-import type { Task, Job } from '@/lib/types';
+import type { Task, Job, JobStatus } from '@/lib/types';
 import { format } from 'date-fns';
 import { QuoteForm } from '@/components/quotes/quote-form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { CalendarPopover } from '@/components/quotes/calendar-popover';
+import { JobStatusBadge } from '@/components/jobs/job-status-badge';
 
 
 const DetailRow = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => {
@@ -89,6 +89,11 @@ export default function JobDetailsPage() {
     updateJob(updatedJob);
   };
 
+  const handleStatusChange = (newStatus: JobStatus) => {
+    const updatedJob = { ...job, status: newStatus };
+    updateJob(updatedJob);
+  };
+
   const initialTasks: Task[] = job.tasks.length > 0 ? job.tasks : [];
   const { quoteDetails } = job;
   const formData = quoteDetails?.formData;
@@ -158,9 +163,7 @@ export default function JobDetailsPage() {
                 </DetailRow>
 
                 <DetailRow icon={Clock} label="Status">
-                    <Badge variant={job.status === 'Completed' ? 'secondary' : 'default'} className="ml-2">
-                        {job.status}
-                    </Badge>
+                    <JobStatusBadge job={job} onStatusChange={handleStatusChange} />
                 </DetailRow>
 
                 <Separator className="my-2" />

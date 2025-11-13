@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar, MapPin, Users } from 'lucide-react';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const JobCard = ({ job }: { job: Job }) => (
   <Card className="hover:shadow-lg transition-shadow duration-300">
@@ -35,7 +36,13 @@ const JobCard = ({ job }: { job: Job }) => (
         <span>{job.team.length} Team Members</span>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Badge variant={job.status === 'Completed' ? 'secondary' : 'default'} className={job.status === 'In Progress' ? 'bg-accent text-accent-foreground' : ''}>
+        <Badge 
+          variant={job.status === 'Completed' || job.status === 'Completed and Paid' ? 'secondary' : 'default'} 
+          className={cn({
+            'bg-accent text-accent-foreground': job.status === 'In Progress',
+            'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-300': job.status === 'Completed and Paid',
+          })}
+        >
           {job.status}
         </Badge>
       </div>
