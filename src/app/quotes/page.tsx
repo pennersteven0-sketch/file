@@ -123,7 +123,7 @@ export default function QuotesPage() {
               <TableRow>
                 <TableHead>Quote #</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>Select Dates</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead className="text-right">Status</TableHead>
               </TableRow>
