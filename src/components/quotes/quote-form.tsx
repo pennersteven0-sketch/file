@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { Card, CardContent } from '../ui/card';
 import { useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
 const slabSchema = z.object({
   width: z.coerce.number().positive().optional().nullable(),
@@ -65,6 +66,12 @@ const equipmentSchema = z.object({
     pricePerDay: z.coerce.number().positive().optional().nullable(),
 });
 
+const otherExpenseSchema = z.object({
+    name: z.string().optional(),
+    cost: z.coerce.number().positive().optional().nullable(),
+    costPerSqFt: z.coerce.number().positive().optional().nullable(),
+});
+
 const costSchema = z.object({
   concretePrice: z.coerce.number().min(0).optional().nullable(),
   rebarPrice: z.coerce.number().min(0).optional().nullable(),
@@ -83,13 +90,14 @@ const quoteFormSchema = z.object({
   travelCosts: z.array(travelCostSchema).optional(),
   labor: z.array(laborSchema).optional(),
   equipment: z.array(equipmentSchema).optional(),
+  otherExpenses: z.array(otherExpenseSchema).optional(),
   costs: costSchema.optional(),
 });
 
 type QuoteFormValues = z.infer<typeof quoteFormSchema>;
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="text-lg font-semibold mt-6 mb-2">{children}</h3>
+  <h3 className={cn("text-lg font-semibold mt-6 mb-2")}>{children}</h3>
 );
 
 export function QuoteForm() {
@@ -108,6 +116,7 @@ export function QuoteForm() {
       travelCosts: [],
       labor: [],
       equipment: [],
+      otherExpenses: [],
       costs: {
         concretePrice: 200, // $/cubic yard
         rebarPrice: 5, // $/stick
@@ -123,12 +132,13 @@ export function QuoteForm() {
   const { fields: travelCostFields, append: appendTravelCost, remove: removeTravelCost } = useFieldArray({ control: form.control, name: 'travelCosts' });
   const { fields: laborFields, append: appendLabor, remove: removeLabor } = useFieldArray({ control: form.control, name: 'labor' });
   const { fields: equipmentFields, append: appendEquipment, remove: removeEquipment } = useFieldArray({ control: form.control, name: 'equipment' });
+  const { fields: otherExpenseFields, append: appendOtherExpense, remove: removeOtherExpense } = useFieldArray({ control: form.control, name: 'otherExpenses' });
 
 
   const watchedValues = useWatch({ control: form.control });
 
   const calculations = useMemo(() => {
-    const { slabs, footings, roundPierHoles, squarePierHoles, travelCosts, labor, equipment, costs } = watchedValues;
+    const { slabs, footings, roundPierHoles, squarePierHoles, travelCosts, labor, equipment, otherExpenses, costs } = watchedValues;
     const REBAR_STICK_LENGTH = 20; // feet
     const REBAR_WASTE_FACTOR = 1.10; // 10%
 
@@ -184,9 +194,16 @@ export function QuoteForm() {
     const travelCost = (travelCosts || []).reduce((acc, t) => {
         return acc + (t.trips || 0) * (t.trucks || 0) * (t.miles || 0) * (costs?.travelPrice || 0);
     }, 0);
+    
+    // Other Expenses
+    const otherExpensesCost = (otherExpenses || []).reduce((acc, e) => {
+        const fixedCost = e.cost || 0;
+        const sqFtCost = (e.costPerSqFt || 0) * totalSlabSqFt;
+        return acc + fixedCost + sqFtCost;
+    }, 0);
 
     // Totals
-    const total = concreteCost + rebarCost + laborCost + equipmentCost + travelCost;
+    const total = concreteCost + rebarCost + laborCost + equipmentCost + travelCost + otherExpensesCost;
 
     return {
       totalSlabSqFt: totalSlabSqFt.toFixed(2),
@@ -197,6 +214,7 @@ export function QuoteForm() {
       laborCost: laborCost.toFixed(2),
       equipmentCost: equipmentCost.toFixed(2),
       travelCost: travelCost.toFixed(2),
+      otherExpensesCost: otherExpensesCost.toFixed(2),
       total: total.toFixed(2),
     };
   }, [watchedValues]);
@@ -361,6 +379,23 @@ export function QuoteForm() {
         </div>
 
         <Separator />
+        
+        <SectionTitle>Other Expenses</SectionTitle>
+        <div className="space-y-4">
+            {otherExpenseFields.map((field, index) => (
+                <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField control={form.control} name={`otherExpenses.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Expense Name</FormLabel><FormControl><Input {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`otherExpenses.${index}.cost`} render={({ field }) => (<FormItem><FormLabel>Cost</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                        <FormField control={form.control} name={`otherExpenses.${index}.costPerSqFt`} render={({ field }) => (<FormItem><FormLabel>Cost Per Sq. Ft.</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)}/>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => removeOtherExpense(index)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => appendOtherExpense({ name: '', cost: null, costPerSqFt: null })}><PlusCircle className="mr-2 h-4 w-4" />Add Expense</Button>
+        </div>
+        
+        <Separator />
 
         <SectionTitle>Estimated Costs</SectionTitle>
         <Card>
@@ -386,6 +421,7 @@ export function QuoteForm() {
                     <p>Labor: <span className="font-medium">${calculations.laborCost}</span></p>
                     <p>Equipment: <span className="font-medium">${calculations.equipmentCost}</span></p>
                     <p>Travel: <span className="font-medium">${calculations.travelCost}</span></p>
+                    <p>Other Expenses: <span className="font-medium">${calculations.otherExpensesCost}</span></p>
                     <Separator className="my-2"/>
                     <p className="text-xl font-bold">Total: <span className="text-primary">${calculations.total}</span></p>
                 </div>
