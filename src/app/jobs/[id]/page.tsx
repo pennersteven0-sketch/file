@@ -6,7 +6,7 @@ import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, MapPin, Calendar, Clock, Mail, Phone, Ruler, PlusCircle } from 'lucide-react';
+import { User, MapPin, Calendar, Clock, Mail, Phone, Ruler, PlusCircle, Edit } from 'lucide-react';
 import { TaskParser } from '@/components/jobs/task-parser';
 import type { Task, Job } from '@/lib/types';
 import { format } from 'date-fns';
@@ -119,31 +119,38 @@ export default function JobDetailsPage() {
 
                 <DetailRow icon={MapPin} label="Location">
                    {isEditingLocation ? (
-                        <Input
-                            value={editingLocation}
-                            onChange={(e) => setEditingLocation(e.target.value)}
-                            onBlur={handleUpdateLocation}
-                            onKeyDown={handleLocationKeyDown}
-                            className="h-8"
-                            autoFocus
-                        />
+                        <div className="flex items-center gap-2">
+                            <Input
+                                value={editingLocation}
+                                onChange={(e) => setEditingLocation(e.target.value)}
+                                onBlur={handleUpdateLocation}
+                                onKeyDown={handleLocationKeyDown}
+                                className="h-8"
+                                autoFocus
+                            />
+                        </div>
                     ) : (
-                        job.location ? (
-                            isUrl(job.location) ? (
-                                <a href={job.location} target="_blank" rel="noopener noreferrer" onClick={handleStartEditingLocation} className="underline cursor-pointer hover:text-primary">
-                                    {job.location}
-                                </a>
+                        <div className="flex items-center gap-2 group">
+                            {job.location ? (
+                                <>
+                                    {isUrl(job.location) ? (
+                                        <a href={job.location} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
+                                            {job.location}
+                                        </a>
+                                    ) : (
+                                        <span>{job.location}</span>
+                                    )}
+                                    <Button variant="ghost" size="icon" onClick={handleStartEditingLocation} className="h-6 w-6 opacity-0 group-hover:opacity-100">
+                                        <Edit className="h-4 w-4" />
+                                    </Button>
+                                </>
                             ) : (
-                                <span onClick={handleStartEditingLocation} className="cursor-pointer hover:text-primary">
-                                    {job.location}
-                                </span>
-                            )
-                        ) : (
-                            <Button variant="outline" size="sm" onClick={handleStartEditingLocation}>
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                Add Address or Link
-                            </Button>
-                        )
+                                <Button variant="outline" size="sm" onClick={handleStartEditingLocation}>
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    Add Address or Link
+                                </Button>
+                            )}
+                        </div>
                     )}
                 </DetailRow>
 
@@ -225,7 +232,7 @@ export default function JobDetailsPage() {
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
-                <a href={`mailto:${job.client.email}`} className="hover:text-primary truncate">{job.client.email}</a>
+                <a href={`mailto:${job.client.email}`} className="hover-text-primary truncate">{job.client.email}</a>
               </div>
             </CardContent>
           </Card>
